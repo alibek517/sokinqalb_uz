@@ -5,7 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: sokinqalb_web_app
     restart: always
-    ports:
-      - "80:80"
+    network_mode: "host"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     environment:
       - NODE_ENV=production
