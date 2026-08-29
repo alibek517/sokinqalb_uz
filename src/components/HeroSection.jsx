@@ -16,7 +16,6 @@ import {
 import FurqatDoctorPortrait from './FurqatDoctorPortrait';
 import PsychologyInsightsGallery from './PsychologyInsightsGallery';
 import TiltCard3D from './TiltCard3D';
-import Interactive3DBrainSphere from './Interactive3DBrainSphere';
 
 export default function HeroSection({ setActiveTab, onOpenConsultModal }) {
   return (
@@ -166,11 +165,6 @@ export default function HeroSection({ setActiveTab, onOpenConsultModal }) {
               </div>
             </TiltCard3D>
 
-          </div>
-
-          {/* Interactive 3D Holographic Brain Sphere Showcase */}
-          <div className="mt-8 sm:mt-12 flex flex-col items-center">
-            <Interactive3DBrainSphere />
           </div>
         </div>
 
