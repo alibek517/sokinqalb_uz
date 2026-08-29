@@ -144,19 +144,19 @@ export default function App() {
             {/* Col 1: Brand Info & Mission (5 cols) */}
             <div className="md:col-span-5 space-y-4 text-left">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-2xl bg-white p-1 overflow-hidden flex-shrink-0 border border-white/20 shadow-lg shadow-teal-500/10">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white p-1 overflow-hidden flex-shrink-0 border border-white/20 shadow-lg shadow-teal-500/10">
                   <img src="/logo.jpg" alt="Sokin Qalb" className="w-full h-full object-contain" />
                 </div>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xl sm:text-2xl font-black text-white tracking-tight whitespace-nowrap">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span className="text-lg sm:text-2xl font-black text-white tracking-tight">
                       SOKIN QALB
                     </span>
-                    <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 font-bold uppercase tracking-wider whitespace-nowrap">
+                    <span className="text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 font-bold uppercase tracking-wider whitespace-nowrap">
                       Transformatsiya Markazi
                     </span>
                   </div>
-                  <p className="text-xs text-teal-300/90 font-semibold tracking-wide mt-0.5">Sog'lom Ong • Sog'lom Hayot</p>
+                  <p className="text-[11px] sm:text-xs text-teal-300/90 font-semibold tracking-wide mt-0.5">Sog'lom Ong • Sog'lom Hayot</p>
                 </div>
               </div>
               
