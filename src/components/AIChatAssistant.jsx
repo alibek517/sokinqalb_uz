@@ -8,7 +8,8 @@ import {
   Brain, 
   ShieldCheck,
   Flame,
-  ArrowRight
+  ArrowRight,
+  RefreshCcw
 } from 'lucide-react';
 import FurqatDoctorPortrait from './FurqatDoctorPortrait';
 
@@ -17,21 +18,81 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
     {
       id: 1,
       sender: 'bot',
-      text: "Assalomu alaykum! Men Sokin Qalb markazining virtual psixologik yordamchisiman. Sizni qiynayotgan xavotir, uyqusizlik, tana qisilishlari yoki Furqat Bag'ibekovning davolash metodikasi bo'yicha qanday savolingiz bor?",
+      text: "Assalomu alaykum! Men Sokin Qalb markazining virtual psixologik yordamchisiman. Sizni qiynayotgan xavotir, uyqusizlik, tana qisilishlari, munosabatlar yoki Bag'ibekov Furqatning davolash apparatlari (Xitoy kapsulasi, Fransiya lampasi) bo'yicha qanday savolingiz bor?",
       time: "Hozir"
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
+  // Scroll ONLY the inner chat messages box, NEVER the entire browser window
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  const generateAIResponse = (query) => {
+    const text = query.toLowerCase().trim();
+
+    // 1. Fransiya Neyro-Lampasi
+    if (text.includes('lampa') || text.includes('fransiya') || text.includes('nur') || text.includes('stroboskop')) {
+      return "💡 **Fransiya Neyro-Lampasi qanday ishlaydi?**\n\nFransiya neyro-lampasi maxsus chastotali stroboskopik yorug'lik to'lqinlari orqali ko'z orqali miya neyronlariga ta'sir qiladi. U miyani chuqur **Alfa (8-12 Hz)** va **Teta (4-8 Hz)** to'lqinlariga tushiradi.\n\nBu holatda inson ongli ravishda o'zining ong ostidagi eski qo'rquvlar, bolalik travmalari va hissiy bloklari bilan xavfsiz muloqot qiladi va ularni gipnozsiz, dori-darmonsiz bartaraf etadi.";
+    }
+
+    // 2. Xitoy Davolash Kapsulasi
+    if (text.includes('kapsula') || text.includes('xitoy') || text.includes('kapsulaterapiya') || text.includes('spazm')) {
+      return "💊 **Xitoy Davolash Kapsulasi (Kapsulaterapiya) haqida:**\n\nInson ruhiy stressga tushganda, barcha hissiyotlar tanada mushak qisilishlari (psixosomatik bloklar) ko'rinishida qotib qoladi. \n\nXitoy davolash kapsulasi chuqur termik, infraqizil va to'lqinli relaksatsiya orqali tanadagi barcha surunkali spazmlarni yechadi, qon aylanishini va biologik quvvatni 100% qayta tiklaydi.";
+    }
+
+    // 3. Neyro-Akustik Musiqa / 432Hz
+    if (text.includes('musiqa') || text.includes('akustika') || text.includes('432') || text.includes('audio') || text.includes('ovoz')) {
+      return "🎶 **432Hz Maxsus Neyro-Akustik Terapiya:**\n\n432Hz chastotadagi binaural tovushlar miyaning xavotir markazi bo'lgan 'Amigdala' faolligini pasaytiradi. U neyronlararo bog'liqlikni tiklab, insonni chuqur xotirjamlik va ichki garmoniyaga olib keladi. Barcha seanslarimiz shu neyromusiqa fonida o'tkaziladi.";
+    }
+
+    // 4. Panik Ataka / Vahima / Qo'rquv / Stress
+    if (text.includes('panik') || text.includes('vahima') || text.includes('qorquv') || text.includes('yurak') || text.includes('havo') || text.includes('stress')) {
+      return "🫀 **Panik ataka va kuchli vahima paytida nima qilish kerak?**\n\n1. **4-7-8 Vagus nafas mashqi:** 4 soniya burundan chuqur nafas oling, 7 soniya ushlab turing, 8 soniya davomida og'zingizdan sekin chiqaring. 5 marta takrorlang.\n2. **Tana teginishini his qiling:** Oyoqlaringiz yerga tegib turganini, kaftlaringizni bir-biriga ishqalab iliqlikni his qiling.\n3. **Bilingki, bu o'tib ketadi:** Panik ataka yurakka zarar yetkazmaydi, bu shunchaki miyaning xato xavf signalidir.\n\nIldizidan qutulish uchun Furqat Bag'ibekov bilan shaxsiy qabulga yozilishni tavsiya qilamiz.";
+    }
+
+    // 5. Munosabatlar / Er-Xotin / Oilaviy muammolar / Ayblash
+    if (text.includes('munosabat') || text.includes('er') || text.includes('xotin') || text.includes('oila') || text.includes('sevgi') || text.includes('ayblash') || text.includes('xafa')) {
+      return "❤️ **Munosabatlar Psixologiyasi va Ichki Dasturlar:**\n\nFurqat Bag'ibekovning mualliflik qonuniga ko'ra: *«Biz ichki holatimizga mos insonlarni hayotimizga tortamiz. Dunyo va odamlar bizning ichki dasturlarimiz oynasidir.»*\n\nBoshqalarni ayblash yoki ularni o'zgartirishga urinish foyda bermaydi. Ichki dasturlaringizni (Qutqaruvchi, Ona, Qurbon rollarini) o'zgartirsangiz, atrofingizdagi insonlarning sizga munosabati ham butunlay ijobiy tomonga o'zgaradi.";
+    }
+
+    // 6. Uyqu / Charchoq / Depressiya
+    if (text.includes('uyqu') || text.includes('charchoq') || text.includes('depressiya') || text.includes('holsiz')) {
+      return "🌙 **Uyqusizlik va Surunkali Charchoq sabablari:**\n\nKo'pincha miya neyronlari yuqori stress tufayli 'Beta-to'lqin'da qotib qoladi va kechasi o'chmaydi. Natijada inson 8 soat uxlasa ham charchab uyg'onadi.\n\nSokin Qalb metodikasi orqali miya neyronlari 'Delta' to'lqiniga moslanadi va 3-5 kun ichida chuqur, shifobaxsh uyqu tiklanadi.";
+    }
+
+    // 7. Moliyaviy Bloklar / Pul
+    if (text.includes('moliya') || text.includes('pul') || text.includes('qashshoq') || text.includes('kambag')) {
+      return "💼 **Moliyaviy Xotirjamlik va Ong Osti:**\n\nMoliyaviy qiyinchiliklar ko'pincha pulning kamligida emas, balki ong ostidagi qashshoqlik qo'rquvi, pulga nisbatan aybdorlik hissi yoki o'z qadrini past baholash bilan bog'liq.\n\nIchki bloklar yechilganda, inson pul topish va uni saqlashdagi doimiy xavotirdan xalos bo'ladi.";
+    }
+
+    // 8. Narxlar / Kurslar / To'lov
+    if (text.includes('narx') || text.includes('qancha') || text.includes('kurs') || text.includes('seans') || text.includes('tolov') || text.includes('pul')) {
+      return "💎 **Dasturlar va Seanslar Narxlari:**\n\n• **Bepul:** Diagnostika testi va Kirish video-darslari ($0);\n• **1$ dan 50$ gacha:** Mini-kurslar («G'azabni Boshqarish», «Ichki Bolalik Travmasi»);\n• **150$:** «30 Kunlik To'liq Transformatsiya» kursi;\n• **350$ - 500$:** Apparatli 3 Seans Kompleks (Konsultatsiya + Xitoy Kapsulasi + Fransiya Lampasi);\n• **1,200$:** VIP Tog' Retreati (Barchasi ichida).\n\n«Kurslar» bo'limida to'g'ridan-to'g'ri ro'yxatdan o'tishingiz mumkin.";
+    }
+
+    // 9. Shaxsiy Qabul / Konsultatsiyaga Yozilish / Furqat Bag'ibekov
+    if (text.includes('konsultatsiya') || text.includes('qabul') || text.includes('yozilish') || text.includes('furqat') || text.includes('boglanish') || text.includes('aloqa')) {
+      return "👨‍⚕️ **Bag'ibekov Furqat Qabuliga Yozilish:**\n\nShaxsiy qabulda 12 yillik klinik tajriba asosida sizning holatingiz individual tahlil qilinadi, Xitoy kapsulasi va Fransiya lampasi seanslari belgilanadi.\n\nQabulga yozilish uchun pastdagi yoki yuqoridagi **«Qabulga Yozilish»** tugmasini bosing yoki admin bilan bog'laning: @sokinqalb_admin";
+    }
+
+    // 10. Salomlashish
+    if (text.includes('salom') || text.includes('assalom') || text.includes('qalesiz') || text.includes('rahmat')) {
+      return "Assalomu alaykum! Sizga yordam berishdan mamnunman. Qanday ruhiy yoki psixosomatik holat sizni bezovta qilmoqda? Savolingizni yozing, birgalikda tahlil qilamiz.";
+    }
+
+    // 11. Standart tahliliy javob
+    return `Savolingiz uchun tashakkur! «${query}» mavzusi insonning ong osti dasturlari va tana xotirjamligi bilan uzviy bog'liq.\n\nBag'ibekov Furqatning 12 yillik klinik metodikasiga ko'ra, har qanday ruhiy taranglik, vahima yoki munosabatlardagi inqirozni dori-darmonsiz, tizimli psixoterapiya va zamonaviy apparatlar (Xitoy kapsulasi, Fransiya lampasi) yordamida to'liq davolash mumkin.\n\nAniqroq ma'lumot olish uchun savolingizni chuqurroq yozishingiz yoki shaxsiy qabulga yozilishingiz mumkin.`;
+  };
 
   const handleSendMessage = (textToSend = inputText) => {
     if (!textToSend.trim()) return;
@@ -47,18 +108,8 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
     setInputText('');
     setIsTyping(true);
 
-    // AI Clinical response generator
     setTimeout(() => {
-      let botReply = "Savolingiz uchun rahmat. Bag'ibekov Furqatning klinik metodikasiga ko'ra, inson ong ostidagi qisilishlar tana kasalliklarining 80% iga sabab bo'ladi. Xitoy Kapsulaterapiyasi va Fransiya neyro-lampasi orqali bu bloklarni 100% dori-darmonsiz to'liq yechish mumkin.";
-      
-      const lower = textToSend.toLowerCase();
-      if (lower.includes('panik') || lower.includes('vahima') || lower.includes('qorquv')) {
-        botReply = "Panik ataka va to'satdan qo'rquv paytida miya amigdala qismi xavf signalini yoqadi. Hozir 4 soniya burundan chuqur nafas oling, 7 soniya ushlab turing va 8 soniya davomida og'izdan sekin chiqaring. Bu Vagus nervini tinchlantiradi. Ildizini davolash uchun esa Furqat Bag'ibekov bilan shaxsiy konsultatsiyaga yozilishni tavsiya qilamiz.";
-      } else if (lower.includes('narx') || lower.includes('qancha') || lower.includes('pul') || lower.includes('kurs')) {
-        botReply = "Sokin Qalb platformasida 1$ dan 500$ gacha bo'lgan amaliy darsliklar, Xitoy Kapsulasi bilan apparatli seanslar hamda eksklyuziv Tog' Retreatlari mavjud. «Kurslar va Seanslar» bo'limida barcha narxlar bilan tanishishingiz mumkin.";
-      } else if (lower.includes('uyqu') || lower.includes('charchoq')) {
-        botReply = "Uyqusizlik ko'pincha miya neyronlarining beta-to'lqinda qotib qolishidan yuzaga keladi. Fransiya neyro-lampasi yordamida miyani 15 daqiqada chuqur teta va delta uyqu to'lqinlariga tushirish mumkin.";
-      }
+      const botReply = generateAIResponse(textToSend);
 
       const botMsg = {
         id: Date.now() + 1,
@@ -69,16 +120,19 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
 
       setMessages(prev => [...prev, botMsg]);
       setIsTyping(false);
-    }, 900);
+    }, 700);
   };
 
   const suggestedQuestions = [
-    "Xitoy kapsulasi qanday ishlaydi?",
     "Fransiya neyro-lampasi nima?",
+    "Xitoy kapsulasi qanday ishlaydi?",
     "Panik ataka va vahimani to'xtatish",
+    "Munosabatlar qonuniyati",
     "Kurslar va seanslar narxi qancha?",
     "Shaxsiy konsultatsiyaga yozilish"
-  ];  return (
+  ];
+
+  return (
     <div className="py-8 sm:py-16 max-w-6xl mx-auto px-2.5 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 w-full">
       
       {/* Header */}
@@ -99,10 +153,13 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
         
         {/* Left: Chat Container */}
         <div className="lg:col-span-8 space-y-4 w-full">
-          <div className="glass-panel rounded-2xl sm:rounded-3xl border border-white/[0.08] shadow-2xl flex flex-col h-[520px] sm:h-[580px] overflow-hidden w-full">
+          <div className="glass-panel rounded-2xl sm:rounded-3xl border border-white/[0.08] shadow-2xl flex flex-col h-[520px] sm:h-[580px] overflow-hidden w-full bg-slate-900/90">
             
-            {/* Chat Messages Log */}
-            <div className="flex-1 p-3 sm:p-6 overflow-y-auto space-y-3 sm:space-y-4">
+            {/* Chat Messages Log — Internal Scroll ONLY */}
+            <div 
+              ref={chatContainerRef}
+              className="flex-1 p-3 sm:p-6 overflow-y-auto space-y-3 sm:space-y-4 scroll-smooth"
+            >
               {messages.map((m) => (
                 <div
                   key={m.id}
@@ -119,7 +176,7 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
                   <div className={`max-w-[85%] rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed ${
                     m.sender === 'user'
                       ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-tr-none shadow-md'
-                      : 'glass-card border border-white/[0.08] text-slate-200 rounded-tl-none'
+                      : 'glass-card border border-white/[0.08] text-slate-200 rounded-tl-none bg-slate-950/60'
                   }`}>
                     <div className="whitespace-pre-wrap">{m.text}</div>
                     <div className={`text-[9px] sm:text-[10px] mt-1.5 ${m.sender === 'user' ? 'text-teal-200 text-right' : 'text-slate-500'}`}>
@@ -132,15 +189,13 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
               {isTyping && (
                 <div className="flex items-center space-x-1.5 text-teal-400 text-xs font-medium italic">
                   <Bot className="w-3.5 h-3.5 animate-spin" />
-                  <span>AI javob tayyorlamoqda...</span>
+                  <span>AI tahlil qilmoqda...</span>
                 </div>
               )}
-
-              <div ref={messagesEndRef} />
             </div>
 
             {/* Quick Question Chips */}
-            <div className="p-2 sm:p-3 border-t border-slate-800/80 bg-slate-950/40 overflow-x-auto no-scrollbar flex items-center space-x-2">
+            <div className="p-2 sm:p-3 border-t border-slate-800/80 bg-slate-950/60 overflow-x-auto no-scrollbar flex items-center space-x-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap pl-1">
                 Savollar:
               </span>
@@ -148,50 +203,65 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(q)}
-                  className="px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-medium bg-slate-900/90 text-teal-300 border border-teal-500/25 hover:border-teal-400 hover:bg-slate-800 transition-all whitespace-nowrap flex-shrink-0"
+                  className="px-3 py-1 rounded-full bg-slate-800/90 hover:bg-teal-500/20 text-slate-300 hover:text-teal-300 border border-slate-700/80 text-[11px] font-medium whitespace-nowrap transition-colors cursor-pointer"
                 >
                   {q}
                 </button>
               ))}
             </div>
 
-            {/* Input Bar */}
-            <div className="p-3 sm:p-4 border-t border-white/[0.08] bg-slate-950/70 flex items-center space-x-2">
+            {/* Message Input Box */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendMessage();
+              }}
+              className="p-3 sm:p-4 border-t border-slate-800/80 bg-slate-900/95 flex items-center space-x-2"
+            >
               <input
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSendMessage();
-                }}
-                placeholder="Savolingiz yoki holatingizni yozing..."
-                className="flex-1 p-2.5 sm:p-3.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-teal-400 min-w-0"
+                placeholder="Savolingizni yozing (masalan: Fransiya lampasi qanday ishlaydi?)..."
+                className="flex-1 bg-slate-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 sm:py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 transition-colors"
               />
               <button
-                onClick={() => handleSendMessage()}
-                className="p-2.5 sm:p-3.5 rounded-xl font-bold text-white glowing-button flex items-center justify-center flex-shrink-0 shadow-md shadow-teal-500/20 active:scale-95"
+                type="submit"
+                disabled={!inputText.trim() || isTyping}
+                className="p-2.5 sm:p-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-bold hover:opacity-90 disabled:opacity-40 transition-opacity flex-shrink-0 cursor-pointer shadow-md shadow-teal-500/20"
+                aria-label="Yuborish"
               >
                 <Send className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-            </div>
+            </form>
 
-          </div>
-
-          {/* Book direct specialist action */}
-          <div className="text-center">
-            <button
-              onClick={() => onOpenConsultModal("Bag'ibekov Furqat")}
-              className="inline-flex items-center space-x-1.5 text-xs sm:text-sm text-teal-300 hover:text-teal-200 font-bold hover:underline"
-            >
-              <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Jonli psixoterapevt bilan shaxsiy konsultatsiya belgilash</span>
-            </button>
           </div>
         </div>
 
-        {/* Right: Custom Furqat AI Psychologist Portrait on Right (O'ng Tarafda) */}
-        <div className="lg:col-span-4 flex justify-center lg:justify-end">
-          <FurqatDoctorPortrait imageSrc="/furqat_ai_chat.jpg" size="wide" direction="right" />
+        {/* Right: Doctor Info & Quick Booking Card */}
+        <div className="lg:col-span-4 space-y-4 w-full">
+          
+          <div className="flex justify-center">
+            <FurqatDoctorPortrait imageSrc="/furqat_ai_chat.png" size="wide" direction="right" />
+          </div>
+
+          <div className="glass-panel p-5 rounded-2xl sm:rounded-3xl border border-teal-500/20 space-y-3.5 bg-slate-900/80">
+            <div className="flex items-center space-x-2">
+              <ShieldCheck className="w-5 h-5 text-teal-400 flex-shrink-0" />
+              <h4 className="text-sm font-bold text-white">Klinik Xavfsizlik</h4>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Virtual yordamchi Bag'ibekov Furqatning ko'p yillik amaliyoti va dori-darmonsiz psixoterapiya tamoyillari asosida dasturlashtirilgan.
+            </p>
+            <button
+              onClick={() => onOpenConsultModal("Bag'ibekov Furqat")}
+              className="w-full py-3 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/20 active:scale-95 border border-teal-400/30 cursor-pointer"
+            >
+              <PhoneCall className="w-4 h-4" />
+              <span>Jonli Qabulga Yozilish</span>
+            </button>
+          </div>
+
         </div>
 
       </div>
