@@ -123,13 +123,13 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
     }, 700);
   };
 
-  const suggestedQuestions = [
-    "Fransiya neyro-lampasi nima?",
-    "Xitoy kapsulasi qanday ishlaydi?",
-    "Panik ataka va vahimani to'xtatish",
-    "Munosabatlar qonuniyati",
-    "Kurslar va seanslar narxi qancha?",
-    "Shaxsiy konsultatsiyaga yozilish"
+  const quickTopics = [
+    { label: "💡 Fransiya Lampasi", query: "Fransiya neyro-lampasi nima va qanday ishlaydi?" },
+    { label: "💊 Xitoy Kapsulasi", query: "Xitoy davolash kapsulasi nima?" },
+    { label: "🫀 Panik Ataka", query: "Panik ataka va vahimani qanday to'xtatish mumkin?" },
+    { label: "❤️ Munosabatlar", query: "Munosabatlardagi xafagarchilik va ichki dasturlar haqida ma'lumot bering" },
+    { label: "💎 Kurs Narxlari", query: "Kurslar va seanslar narxi qancha?" },
+    { label: "👨‍⚕️ Shaxsiy Qabul", query: "Bag'ibekov Furqat qabuliga qanday yozilish mumkin?" }
   ];
 
   return (
@@ -194,18 +194,20 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
               )}
             </div>
 
-            {/* Quick Question Chips */}
-            <div className="p-2 sm:p-3 border-t border-slate-800/80 bg-slate-950/60 overflow-x-auto no-scrollbar flex items-center space-x-2">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap pl-1">
-                Savollar:
+            {/* Quick Topic Chips - Concise, Clean & Stylish */}
+            <div className="px-3 py-2 border-t border-slate-800/80 bg-slate-950/70 overflow-x-auto no-scrollbar flex items-center space-x-2">
+              <span className="text-[10px] font-bold text-teal-400 uppercase tracking-wider whitespace-nowrap pl-0.5 flex-shrink-0 flex items-center space-x-1">
+                <Sparkles className="w-3 h-3 text-teal-400" />
+                <span>Mavzular:</span>
               </span>
-              {suggestedQuestions.map((q, idx) => (
+              {quickTopics.map((item, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleSendMessage(q)}
-                  className="px-3 py-1 rounded-full bg-slate-800/90 hover:bg-teal-500/20 text-slate-300 hover:text-teal-300 border border-slate-700/80 text-[11px] font-medium whitespace-nowrap transition-colors cursor-pointer"
+                  type="button"
+                  onClick={() => handleSendMessage(item.query)}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-teal-500/20 text-slate-200 hover:text-teal-300 border border-slate-700/70 hover:border-teal-400/50 text-xs font-medium whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 shadow-sm flex-shrink-0"
                 >
-                  {q}
+                  {item.label}
                 </button>
               ))}
             </div>
