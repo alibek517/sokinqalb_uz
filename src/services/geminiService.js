@@ -125,7 +125,7 @@ Bag'ibekov Furqat sifatida ushbu insonga bugungi kuni uchun iliq ruhiy qo'llab-q
 export async function analyzeFourPillarsWithGemini(pillarsData) {
   const prompt = `Foydalanuvchining 4 Hayotiy Ustun bo'yicha shaxsiy baholari:
 1. 💰 Moliyaviy Xotirjamlik: ${pillarsData.financial || 6} / 10
-2. 🧘 Ruhiy Xotirjamlik: ${pillarsData.spiritual || 8} / 10
+2. 🧘 Ruhiy Xotirjamlik: ${pillarsData.mental || 7} / 10
 3. 🏃 Jismoniy & Tana Salomatligi: ${pillarsData.physical || 5} / 10
 4. ❤️ Munosabatlar & Oila: ${pillarsData.relationships || 8} / 10
 
@@ -137,4 +137,119 @@ Bag'ibekov Furqatning mualliflik 4 Ustun tizimi bo'yicha mukammal, individual ta
 4. 🌟 **Xulosa va Ruhiy Dastur.**`;
 
   return await callGeminiAI(prompt, BASE_SYSTEM_PROMPT, 1200);
+}
+
+/**
+ * 5. Bag'ibekov Furqat Yordamchisi Orqali Shaxsiy Kunlik Reja Tuzish
+ */
+export async function generatePersonalizedRoutineWithAssistant(userSituation, moodScore = 7, stressScore = 4) {
+  const prompt = `Foydalanuvchining bugungi holati va ehtiyojlari:
+- Kayfiyat darajasi: ${moodScore} / 10
+- Stress darajasi: ${stressScore} / 10
+- Foydalanuvchining shaxsiy holati/muammosi: "${userSituation || 'Bugungi kunimni xotirjam, samarali va stresssiz o\'tkazishni xohlayman'}"
+
+VAZIFA:
+Bag'ibekov Furqatning 12 yillik klinik amaliyoti (Vagus nafas mashqi, 432Hz neyro-akustika, tana psixosomatikasi, minnatdorlik) asosida aynan ushbu foydalanuvchining holatiga moslangan soatli 4-5 ta shaxsiy shifobaxsh vazifa rejasini tuzib ber.
+
+MUHIM TALAB:
+Javobingni quyidagi JSON formatida ber (faqat JSON, hech qanday qo'shimcha so'zsiz):
+{
+  "doctorMessage": "Furqat Bag'ibekov nomidan foydalanuvchiga 1-2 jumlalik iliq shaxsiy dalda va yo'riqnoma",
+  "tasks": [
+    {
+      "id": "task_custom_1",
+      "time": "07:30",
+      "title": "Vazifa nomi",
+      "benefit": "Miyaga va tanaga qanday foyda berishi",
+      "description": "2-3 qadamda qanday bajarish kerakligi"
+    },
+    {
+      "id": "task_custom_2",
+      "time": "10:30",
+      "title": "Vazifa nomi",
+      "benefit": "Foydasi",
+      "description": "Bajarish yo'riqnomasi"
+    },
+    {
+      "id": "task_custom_3",
+      "time": "14:00",
+      "title": "Vazifa nomi",
+      "benefit": "Foydasi",
+      "description": "Bajarish yo'riqnomasi"
+    },
+    {
+      "id": "task_custom_4",
+      "time": "18:30",
+      "title": "Vazifa nomi",
+      "benefit": "Foydasi",
+      "description": "Bajarish yo'riqnomasi"
+    },
+    {
+      "id": "task_custom_5",
+      "time": "22:00",
+      "title": "Vazifa nomi",
+      "benefit": "Foydasi",
+      "description": "Bajarish yo'riqnomasi"
+    }
+  ]
+}`;
+
+  try {
+    const rawResult = await callGeminiAI(prompt, BASE_SYSTEM_PROMPT, 1000);
+    // Extract JSON block
+    const jsonMatch = rawResult.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (parsed && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn("AI Routine parse failed, creating contextual fallback:", e);
+  }
+
+  // Contextual fallback based on user state
+  const isHighStress = stressScore >= 6;
+  return {
+    doctorMessage: isHighStress 
+      ? "Sizdagi yuqori stress va charchoqni his qildim. Bugungi rejamiz asab tizimingizni zudlik bilan tinchlantirish va tanadagi qisilishlarni bo'shatishga qaratilgan."
+      : "Bugungi kuningizni ichki barqarorlik, diqqatni jamlash va yuqori energiya bilan o'tkazish uchun shaxsiy reja tuzildi.",
+    tasks: [
+      {
+        id: `ai_${Date.now()}_1`,
+        time: "07:30",
+        title: isHighStress ? "4-7-8 Vagus Nafas Mashqi" : "Tetirklashtiruvchi Tonggi Meditatsiya",
+        benefit: "Miya amigdala markazini tinchlantiradi va xotirjamlik gormonini uyg'otadi.",
+        description: "4 soniya burundan chuqur nafas oling, 7 soniya ushlab turing va 8 soniya davomida og'izdan sekin chiqaring. 5 marta takrorlang."
+      },
+      {
+        id: `ai_${Date.now()}_2`,
+        time: "11:00",
+        title: "Kognitiv Detoks & Chalg'ish",
+        benefit: "Miyadagi ortiqcha fikrlar girdobini to'xtatadi.",
+        description: "Ishdan 3 daqiqaga to'xtang, oynadan uzoqqa qarang va 5 ta ko'rayotgan narsangizni ichingizda sanab chiqing."
+      },
+      {
+        id: `ai_${Date.now()}_3`,
+        time: "14:30",
+        title: "Tana Psixosomatik Bo'shashishi",
+        benefit: "Yelka, bo'yin va ko'krak qisilishlarini yechadi.",
+        description: "Yelkalaringizni yuqoriga ko'tarib 3 soniya qattiq qising, so'ng birdaniga bo'sh qo'yib nafas chiqaring."
+      },
+      {
+        id: `ai_${Date.now()}_4`,
+        time: "19:00",
+        title: "Kechki Neyro-Audio 432Hz Seansi",
+        benefit: "Kun davomida to'plangan stress yukini eritib yuboradi.",
+        description: "Quloqchin taqib, platformadagi 432Hz audioni 3 daqiqa ko'zingizni yumib tinglang."
+      },
+      {
+        id: `ai_${Date.now()}_5`,
+        time: "22:30",
+        title: "Uyqu Oldi Minnatdorlik Qaydi",
+        benefit: "Chuqur, sifatli va tushsiz xotirjam uyquni ta'minlaydi.",
+        description: "Bugun ro'y bergan 3 ta kichik yaxshi voqeani eslang va o'zingizga rahmat ayting."
+      }
+    ]
+  };
 }
