@@ -42,7 +42,107 @@ export default function DailyTasksTracker() {
   });
 
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [audioTimer, setAudioTimer] = useState(180); // 3 minutes
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const audioCtxRef = useRef(null);
+  const oscillatorsRef = useRef([]);
+  const gainNodeRef = useRef(null);
+
+  // Real 432Hz Binaural Beat Web Audio Synthesizer
+  const start432HzAudio = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      audioCtxRef.current = ctx;
+
+      // 432Hz universal harmony + 436Hz binaural theta wave (4Hz difference)
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const subOsc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(432, ctx.currentTime);
+
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(436, ctx.currentTime);
+
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(216, ctx.currentTime);
+
+      // Smooth volume ramp
+      gainNode.gain.setValueAtTime(0.001, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 1.2);
+
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      subOsc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      subOsc.start();
+
+      oscillatorsRef.current = [osc1, osc2, subOsc];
+      gainNodeRef.current = gainNode;
+    } catch (e) {
+      console.error("Audio Web API error:", e);
+    }
+  };
+
+  const stop432HzAudio = () => {
+    try {
+      if (gainNodeRef.current && audioCtxRef.current) {
+        gainNodeRef.current.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + 0.5);
+        setTimeout(() => {
+          oscillatorsRef.current.forEach(osc => {
+            try { osc.stop(); } catch(e) {}
+          });
+          if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+            audioCtxRef.current.close();
+          }
+        }, 500);
+      }
+    } catch (e) {
+      console.error("Audio stop error:", e);
+    }
+  };
+
+  const toggleAudioPractice = () => {
+    if (!isPlayingAudio) {
+      start432HzAudio();
+      setIsPlayingAudio(true);
+    } else {
+      stop432HzAudio();
+      setIsPlayingAudio(false);
+    }
+  };
+
+  useEffect(() => {
+    let interval = null;
+    if (isPlayingAudio && audioTimer > 0) {
+      interval = setInterval(() => {
+        setAudioTimer(prev => {
+          if (prev <= 1) {
+            stop432HzAudio();
+            setIsPlayingAudio(false);
+            return 180;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlayingAudio, audioTimer]);
+
+  useEffect(() => {
+    return () => {
+      stop432HzAudio();
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('sokinqalb_daily_tasks', JSON.stringify(tasks));
@@ -297,22 +397,42 @@ export default function DailyTasksTracker() {
             </button>
           </div>
 
-          {/* Audio Player Widget */}
-          <div className="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-500/20 space-y-3">
-            <div className="flex items-center space-x-2">
-              <Music className="w-4 h-4 text-indigo-400" />
-              <h4 className="text-xs sm:text-sm font-bold text-white">Neyro-Audio Amaliyot</h4>
+          {/* Audio Player Widget — Real 432Hz Harmonic Synthesizer */}
+          <div className="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-500/30 space-y-3 bg-slate-900/90 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Music className="w-4 h-4 text-indigo-400" />
+                <h4 className="text-xs sm:text-sm font-bold text-white">432Hz Neyro-Audio Amaliyot</h4>
+              </div>
+              {isPlayingAudio && (
+                <div className="flex items-center space-x-1">
+                  <span className="w-1 h-3 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1 h-5 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1 h-4 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="w-1 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '450ms' }} />
+                </div>
+              )}
             </div>
+
             <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed">
-              Miya neyronlarini tinchlantiruvchi 432Hz chastotali maxsus sokinlik melodiyasi
+              Miya neyronlarini tinchlantiruvchi, Vagus nervini faollashtiruvchi 432Hz va 436Hz Teta to'lqinli garmonik audio meditatsiya.
             </p>
 
+            {isPlayingAudio && (
+              <div className="bg-indigo-950/60 p-2.5 rounded-xl border border-indigo-500/30 flex items-center justify-between text-xs font-mono text-indigo-200">
+                <span>🎵 Ijro etilmoqda (432Hz Teta):</span>
+                <span className="font-bold text-teal-300">
+                  {Math.floor(audioTimer / 60)}:{(audioTimer % 60).toString().padStart(2, '0')}
+                </span>
+              </div>
+            )}
+
             <button
-              onClick={() => setIsPlayingAudio(!isPlayingAudio)}
-              className={`w-full py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all ${
+              onClick={toggleAudioPractice}
+              className={`w-full py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer ${
                 isPlayingAudio
-                  ? 'bg-rose-500/20 border border-rose-500/40 text-rose-300'
-                  : 'bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200'
+                  ? 'bg-rose-500/20 border border-rose-500/50 text-rose-300 shadow-lg shadow-rose-500/20'
+                  : 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:opacity-90 text-white shadow-lg shadow-indigo-500/25 border border-indigo-400/30'
               }`}
             >
               {isPlayingAudio ? (
@@ -322,8 +442,8 @@ export default function DailyTasksTracker() {
                 </>
               ) : (
                 <>
-                  <Play className="w-4 h-4 text-indigo-400" />
-                  <span>Amaliyotni Tinglash (3 daqiqa)</span>
+                  <Play className="w-4 h-4 text-white fill-white" />
+                  <span>Amaliyotni Boshlash (3 daqiqa)</span>
                 </>
               )}
             </button>
