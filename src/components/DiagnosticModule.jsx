@@ -316,17 +316,17 @@ export default function DiagnosticModule({ setActiveTab, onOpenConsultModal }) {
 
               </div>
 
-              {/* Gemini AI Deep Psychological Analysis Section */}
+              {/* Furqat Assistant Clinical Analysis Section */}
               <div className="glass-card p-5 sm:p-7 rounded-2xl border border-teal-500/30 bg-slate-950/80 space-y-3">
                 <div className="flex items-center space-x-2 text-teal-300 font-bold text-sm sm:text-base">
                   <Bot className="w-5 h-5 text-teal-400" />
-                  <span>Google Gemini AI Ong Osti Diagnostikasi:</span>
+                  <span>Bag'ibekov Furqatning Yordamchisi Xulosasi:</span>
                 </div>
 
                 {isAnalyzingGemini ? (
                   <div className="py-6 flex flex-col items-center justify-center space-y-2 text-teal-300 text-xs">
                     <RefreshCw className="w-6 h-6 animate-spin text-teal-400" />
-                    <span>Gemini AI individual javoblaringizni klinik tahlil qilmoqda...</span>
+                    <span>Bag'ibekov Furqatning Yordamchisi javoblaringizni tahlil qilmoqda...</span>
                   </div>
                 ) : geminiAnalysis ? (
                   <div className="text-slate-200 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">

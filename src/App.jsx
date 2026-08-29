@@ -178,7 +178,7 @@ export default function App() {
                 <button onClick={() => setActiveTab('team')} className="text-left hover:text-teal-300 transition-colors py-1 whitespace-nowrap">Jamoa</button>
                 <button onClick={() => setActiveTab('courses')} className="text-left hover:text-teal-300 transition-colors py-1 whitespace-nowrap">Kurslar</button>
                 <button onClick={() => setActiveTab('gifts')} className="text-left hover:text-teal-300 transition-colors py-1 whitespace-nowrap">Sovg'alar</button>
-                <button onClick={() => setActiveTab('ai-chat')} className="text-left hover:text-teal-300 transition-colors py-1 whitespace-nowrap">AI Psixolog</button>
+                <button onClick={() => setActiveTab('ai-chat')} className="text-left hover:text-teal-300 transition-colors py-1 whitespace-nowrap">Furqat Yordamchisi</button>
                 <button onClick={() => setActiveTab('admin')} className="text-left text-indigo-400 hover:text-indigo-300 font-bold transition-colors py-1 whitespace-nowrap">Admin Panel</button>
               </div>
             </div>

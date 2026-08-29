@@ -408,7 +408,7 @@ export default function DailyTasksTracker() {
               {isAnalyzingCheckin ? (
                 <>
                   <Sparkles className="w-4 h-4 animate-spin text-teal-200" />
-                  <span>Gemini AI Tahlil Qilmoqda...</span>
+                  <span>Yordamchi Tahlil Qilmoqda...</span>
                 </>
               ) : saveSuccess ? (
                 <>
@@ -418,17 +418,17 @@ export default function DailyTasksTracker() {
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Holatni Saqlash & AI Tahlil</span>
+                  <span>Holatni Saqlash & Tahlil Olish</span>
                 </>
               )}
             </button>
 
-            {/* Gemini AI Daily Feedback Box */}
+            {/* Furqat Assistant Daily Feedback Box */}
             {geminiFeedback && (
               <div className="p-3.5 sm:p-4 rounded-xl bg-slate-950/80 border border-teal-500/30 space-y-2 animate-fade-in shadow-inner">
                 <div className="flex items-center space-x-2 text-teal-300 font-bold text-xs">
                   <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-                  <span>Gemini AI Psixoterapevt Tavsiyasi:</span>
+                  <span>Bag'ibekov Furqatning Yordamchisi Tavsiyasi:</span>
                 </div>
                 <div className="text-slate-200 text-[11px] sm:text-xs leading-relaxed whitespace-pre-wrap">
                   {geminiFeedback}

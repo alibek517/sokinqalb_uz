@@ -111,7 +111,7 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
     {
       id: 1,
       sender: 'bot',
-      text: "Assalomu alaykum! Men Sokin Qalb markazining Gemini AI asosidagi virtual psixologik yordamchisiman. Sizni qiynayotgan xavotir, asabiylik, uyqusizlik, tana qisilishlari, munosabatlar yoki Bag'ibekov Furqatning davolash metodikasi bo'yicha qanday savolingiz bor?",
+      text: "Assalomu alaykum! Men Bag'ibekov Furqatning shaxsiy Yordamchisiman. Sizni qiynayotgan xavotir, asabiylik, uyqusizlik, tana qisilishlari, munosabatlar yoki markazimizning davolash metodikalari bo'yicha qanday savolingiz bor?",
       time: "Hozir"
     }
   ]);
@@ -243,13 +243,13 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
       <div className="text-center space-y-2">
         <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full badge-teal text-[10px] sm:text-xs font-bold uppercase tracking-wider">
           <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-          <span>24/7 Virtual Psixologik Hamroh</span>
+          <span>24/7 Shaxsiy Neyro-Hamroh</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Sokin Qalb AI Psixolog
+          Bag'ibekov Furqatning Yordamchisi
         </h2>
         <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto">
-          Furqat Bag'ibekovning klinik metodikasi va tamoyillari asosida real vaqtda maslahat oling
+          Furqat Bag'ibekovning klinik metodikasi va tamoyillari asosida real vaqtda yo'l-yo'riq va tavsiyalar oling
         </p>
       </div>
 
@@ -293,7 +293,7 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
               {isTyping && (
                 <div className="flex items-center space-x-2 text-teal-400 text-xs font-medium italic bg-teal-950/40 p-2 rounded-xl border border-teal-500/20 w-fit">
                   <Bot className="w-4 h-4 animate-spin text-teal-300" />
-                  <span>AI tahlil qilmoqda...</span>
+                  <span>Furqat Bag'ibekovning Yordamchisi javob yozmoqda...</span>
                 </div>
               )}
             </div>
@@ -328,7 +328,7 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Savolingizni yozing (masalan: Fransiya lampasi qanday ishlaydi?)..."
+                placeholder="Furqat Bag'ibekovning Yordamchisiga savolingizni yozing..."
                 className="flex-1 bg-slate-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 sm:py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 transition-colors"
               />
               <button

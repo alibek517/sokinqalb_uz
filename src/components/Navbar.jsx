@@ -26,7 +26,7 @@ export default function Navbar({ activeTab, setActiveTab, onOpenConsultModal }) 
     { id: 'team', label: 'Jamoa', icon: Users },
     { id: 'courses', label: 'Kurslar', icon: BookOpen },
     { id: 'gifts', label: 'Sovg\'alar', icon: Gift },
-    { id: 'ai-chat', label: 'AI Psixolog', icon: MessageSquare },
+    { id: 'ai-chat', label: 'Furqat Yordamchisi', icon: MessageSquare },
     { id: 'admin', label: 'Admin', icon: ShieldCheck },
   ];
 

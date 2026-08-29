@@ -197,16 +197,16 @@ export default function FourPillarsModule({ setActiveTab }) {
         })}
       </div>
 
-      {/* Gemini AI Live 4-Pillars Analysis Trigger & Card */}
+      {/* Furqat Assistant Live 4-Pillars Analysis Trigger & Card */}
       <div className="glass-panel p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-teal-500/30 shadow-2xl bg-slate-900/90 space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div className="space-y-1">
             <div className="flex items-center space-x-2 text-teal-300 font-bold text-sm sm:text-base">
               <Bot className="w-5 h-5 text-teal-400" />
-              <span>Google Gemini AI 4 Ustun Balans Tahlili</span>
+              <span>Bag'ibekov Furqatning Yordamchisi — 4 Ustun Tahlili</span>
             </div>
             <p className="text-xs text-slate-400">
-              4 ta sohangiz ko'rsatkichlari bo'yicha sun'iy intellekt orqali to'liq klinik xulosa va yo'l xaritasini oling
+              4 ta sohangiz ko'rsatkichlari bo'yicha Bag'ibekov Furqatning Yordamchisidan to'liq klinik xulosa va yo'l xaritasini oling
             </p>
           </div>
 
@@ -218,12 +218,12 @@ export default function FourPillarsModule({ setActiveTab }) {
             {isAnalyzing ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin text-teal-200" />
-                <span>Gemini AI Tahlil Qilmoqda...</span>
+                <span>Yordamchi Tahlil Qilmoqda...</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                <span>Gemini AI Bilan Tahlil Qilish</span>
+                <span>Bag'ibekov Furqatning Yordamchisi Bilan Tahlil</span>
               </>
             )}
           </button>
@@ -235,7 +235,7 @@ export default function FourPillarsModule({ setActiveTab }) {
           </div>
         ) : (
           <div className="p-4 rounded-xl bg-slate-950/40 border border-white/[0.05] text-slate-400 text-xs text-center">
-            Tugmani bosing — Google Gemini AI 4 ustuningiz mutanosibligini va ularning bir-biriga ta'sirini to'liq tahlil qilib beradi.
+            Tugmani bosing — Bag'ibekov Furqatning Yordamchisi 4 ustuningiz mutanosibligini va ularning bir-biriga ta'sirini to'liq tahlil qilib beradi.
           </div>
         )}
       </div>
