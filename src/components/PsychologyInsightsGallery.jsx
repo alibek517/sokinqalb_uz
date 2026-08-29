@@ -136,50 +136,49 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
           </div>
         </div>
 
-        {/* Visual Infographics Grid */}
+        {/* Visual Infographics Grid — Full Uncropped Poster View */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
           {filteredInfographics.map((item) => (
             <div 
               key={item.id}
               onClick={() => setSelectedImage(item)}
-              className={`glass-panel rounded-3xl border ${item.borderColor} overflow-hidden flex flex-col justify-between group shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer bg-slate-900/90`}
+              className={`glass-panel rounded-3xl border ${item.borderColor} overflow-hidden flex flex-col justify-between group shadow-2xl hover:scale-[1.02] hover:border-teal-400/60 transition-all duration-300 cursor-pointer bg-slate-900/95`}
             >
               <div>
-                {/* Image Container with Zoom Badge */}
-                <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-slate-950">
+                {/* Poster Image Container — 100% Full View Without Cropping */}
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-slate-950/80 flex items-center justify-center p-2 border-b border-white/[0.06]">
                   <img 
                     src={item.image} 
                     alt={item.title}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain rounded-2xl group-hover:scale-[1.03] transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
                   
-                  {/* Floating Tag & Zoom Icon */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-white border border-white/20 shadow-md">
+                  {/* Floating Tag & Quick Zoom Badge */}
+                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+                    <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur-md text-teal-300 border border-teal-500/30 shadow-lg">
                       {item.tag}
                     </span>
-                    <div className="w-8 h-8 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-teal-300 group-hover:scale-110 transition-transform shadow-lg">
+                    <div className="w-8 h-8 rounded-full bg-slate-950/85 backdrop-blur-md border border-teal-400/40 flex items-center justify-center text-teal-300 group-hover:scale-110 transition-transform shadow-lg">
                       <ZoomIn className="w-4 h-4" />
                     </div>
                   </div>
                 </div>
 
                 {/* Card Body */}
-                <div className="p-4 sm:p-6 space-y-2">
+                <div className="p-4 sm:p-5 space-y-1.5">
                   <h3 className="text-base sm:text-lg font-black text-white group-hover:text-teal-300 transition-colors leading-snug">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                  <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">
                     {item.description}
                   </p>
                 </div>
               </div>
 
               {/* Bottom CTA */}
-              <div className="p-4 sm:p-6 pt-0">
+              <div className="p-4 sm:p-5 pt-0">
                 <div className="flex items-center space-x-2 text-xs font-bold text-teal-400 group-hover:text-teal-300">
-                  <span>To'liq tahlilni ko'rish</span>
+                  <span>To'liq kattalashtirib o'qish</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
