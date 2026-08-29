@@ -9,9 +9,100 @@ import {
   ShieldCheck,
   Flame,
   ArrowRight,
-  RefreshCcw
+  RefreshCcw,
+  CheckCircle2
 } from 'lucide-react';
 import FurqatDoctorPortrait from './FurqatDoctorPortrait';
+
+// High-End Rich Markdown & Typography Formatter for AI Responses
+function FormattedMessage({ text, isUser }) {
+  if (isUser) {
+    return <div className="text-xs sm:text-sm font-medium leading-relaxed text-white whitespace-pre-wrap">{text}</div>;
+  }
+
+  const lines = text.split('\n');
+
+  const renderInlineFormatted = (str) => {
+    const parts = [];
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    let match;
+    let lastIndex = 0;
+
+    while ((match = boldRegex.exec(str)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(str.substring(lastIndex, match.index));
+      }
+      parts.push(
+        <strong key={match.index} className="text-teal-300 font-bold">
+          {match[1]}
+        </strong>
+      );
+      lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < str.length) {
+      parts.push(str.substring(lastIndex));
+    }
+    return parts.length > 0 ? parts : str;
+  };
+
+  return (
+    <div className="space-y-2 text-xs sm:text-sm leading-relaxed text-slate-100">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} className="h-1.5" />;
+        }
+
+        // Section Title Banner
+        if ((trimmed.startsWith('💡') || trimmed.startsWith('💊') || trimmed.startsWith('🎶') || trimmed.startsWith('🫀') || trimmed.startsWith('❤️') || trimmed.startsWith('🌙') || trimmed.startsWith('💼') || trimmed.startsWith('💎') || trimmed.startsWith('👨‍⚕️')) && trimmed.includes('**')) {
+          return (
+            <div key={idx} className="pb-1.5 pt-0.5 border-b border-teal-500/25 text-sm sm:text-base font-black text-white flex items-center space-x-1.5">
+              <span>{renderInlineFormatted(trimmed)}</span>
+            </div>
+          );
+        }
+
+        // Bullet / Ordered List Item
+        if (trimmed.startsWith('•') || trimmed.startsWith('-') || /^\d+\./.test(trimmed)) {
+          const isOrdered = /^\d+\./.test(trimmed);
+          const prefix = isOrdered ? trimmed.match(/^\d+\./)[0] : '•';
+          const content = trimmed.replace(/^[•\-\d+\.]\s*/, '');
+          
+          return (
+            <div key={idx} className="flex items-start space-x-2 pl-1 py-0.5">
+              {isOrdered ? (
+                <span className="text-[11px] font-bold text-teal-400 bg-teal-950/80 px-1.5 py-0.5 rounded border border-teal-500/30 flex-shrink-0 mt-0.5">
+                  {prefix}
+                </span>
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-2 flex-shrink-0 shadow-[0_0_8px_#2dd4bf]" />
+              )}
+              <div className="flex-1 text-slate-200">
+                {renderInlineFormatted(content)}
+              </div>
+            </div>
+          );
+        }
+
+        // Highlight Quotes (starts with *)
+        if (trimmed.startsWith('*«') || trimmed.startsWith('«')) {
+          return (
+            <div key={idx} className="my-1.5 p-2.5 rounded-xl bg-teal-950/30 border-l-2 border-teal-400 text-teal-200/90 text-xs sm:text-sm italic">
+              {renderInlineFormatted(trimmed)}
+            </div>
+          );
+        }
+
+        // Standard Paragraph
+        return (
+          <p key={idx} className="text-slate-200">
+            {renderInlineFormatted(trimmed)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function AIChatAssistant({ onOpenConsultModal }) {
   const [messages, setMessages] = useState([
@@ -26,7 +117,6 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
   const [isTyping, setIsTyping] = useState(false);
   const chatContainerRef = useRef(null);
 
-  // Scroll ONLY the inner chat messages box, NEVER the entire browser window
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -42,47 +132,47 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
 
     // 1. Fransiya Neyro-Lampasi
     if (text.includes('lampa') || text.includes('fransiya') || text.includes('nur') || text.includes('stroboskop')) {
-      return "💡 **Fransiya Neyro-Lampasi qanday ishlaydi?**\n\nFransiya neyro-lampasi maxsus chastotali stroboskopik yorug'lik to'lqinlari orqali ko'z orqali miya neyronlariga ta'sir qiladi. U miyani chuqur **Alfa (8-12 Hz)** va **Teta (4-8 Hz)** to'lqinlariga tushiradi.\n\nBu holatda inson ongli ravishda o'zining ong ostidagi eski qo'rquvlar, bolalik travmalari va hissiy bloklari bilan xavfsiz muloqot qiladi va ularni gipnozsiz, dori-darmonsiz bartaraf etadi.";
+      return "💡 **Fransiya Neyro-Lampasi qanday ishlaydi?**\n\nFransiya neyro-lampasi maxsus chastotali stroboskopik yorug'lik to'lqinlari orqali ko'z orqali miya neyronlariga ta'sir qiladi. U miyani chuqur **Alfa (8-12 Hz)** va **Teta (4-8 Hz)** to'lqinlariga tushiradi.\n\n• **Gipnozsiz va Dori-Darmonsiz:** Ong ostidagi eski qo'rquvlar va bolalik travmalari xavfsiz bartaraf etiladi;\n• **Neyron Relaksatsiya:** 15 daqiqada 8 soatlik chuqur uyqu darajasidagi ruhiy yengillik beradi;\n• **Ildiz Bloklarini Yechish:** Surunkali vahima va stress o'choqlarini ildizidan tozalaydi.";
     }
 
     // 2. Xitoy Davolash Kapsulasi
     if (text.includes('kapsula') || text.includes('xitoy') || text.includes('kapsulaterapiya') || text.includes('spazm')) {
-      return "💊 **Xitoy Davolash Kapsulasi (Kapsulaterapiya) haqida:**\n\nInson ruhiy stressga tushganda, barcha hissiyotlar tanada mushak qisilishlari (psixosomatik bloklar) ko'rinishida qotib qoladi. \n\nXitoy davolash kapsulasi chuqur termik, infraqizil va to'lqinli relaksatsiya orqali tanadagi barcha surunkali spazmlarni yechadi, qon aylanishini va biologik quvvatni 100% qayta tiklaydi.";
+      return "💊 **Xitoy Davolash Kapsulasi (Kapsulaterapiya) haqida:**\n\nInson ruhiy stressga tushganda, barcha hissiyotlar tanada mushak qisilishlari (psixosomatik bloklar) ko'rinishida qotib qoladi.\n\n• **Chuqur Termik & Infraqizil Terapiya:** Bo'yin, yelka va orqa mushaklaridagi spazmlarni yechadi;\n• **Biologik Quvvat Tiklanishi:** Qon aylanishi va immunitetni 100% tiklab, charchoqni yo'qotadi;\n• **Klinik Natija:** Birinchi seansdanoq tanada yengillik va qanot paydo bo'lgandek tuyg'u hosil bo'ladi.";
     }
 
     // 3. Neyro-Akustik Musiqa / 432Hz
     if (text.includes('musiqa') || text.includes('akustika') || text.includes('432') || text.includes('audio') || text.includes('ovoz')) {
-      return "🎶 **432Hz Maxsus Neyro-Akustik Terapiya:**\n\n432Hz chastotadagi binaural tovushlar miyaning xavotir markazi bo'lgan 'Amigdala' faolligini pasaytiradi. U neyronlararo bog'liqlikni tiklab, insonni chuqur xotirjamlik va ichki garmoniyaga olib keladi. Barcha seanslarimiz shu neyromusiqa fonida o'tkaziladi.";
+      return "🎶 **432Hz Maxsus Neyro-Akustik Terapiya:**\n\n432Hz chastotadagi binaural tovushlar miyaning xavotir markazi bo'lgan **Amigdala** faolligini pasaytiradi.\n\n• **Neyronlararo Muvozanat:** Miyaning o'ng va chap yarim sharlarini garmoniyaga keltiradi;\n• **Ichki Xotirjamlik:** Vahima, bezovtalik va yurak tez urishini zudlik bilan tinchlantiradi;\n• **Seanslarda Qo'llanilishi:** Kapsula va Lampa muolajalari aynan shu musiqiy chastota ostida o'tadi.";
     }
 
     // 4. Panik Ataka / Vahima / Qo'rquv / Stress
     if (text.includes('panik') || text.includes('vahima') || text.includes('qorquv') || text.includes('yurak') || text.includes('havo') || text.includes('stress')) {
-      return "🫀 **Panik ataka va kuchli vahima paytida nima qilish kerak?**\n\n1. **4-7-8 Vagus nafas mashqi:** 4 soniya burundan chuqur nafas oling, 7 soniya ushlab turing, 8 soniya davomida og'zingizdan sekin chiqaring. 5 marta takrorlang.\n2. **Tana teginishini his qiling:** Oyoqlaringiz yerga tegib turganini, kaftlaringizni bir-biriga ishqalab iliqlikni his qiling.\n3. **Bilingki, bu o'tib ketadi:** Panik ataka yurakka zarar yetkazmaydi, bu shunchaki miyaning xato xavf signalidir.\n\nIldizidan qutulish uchun Furqat Bag'ibekov bilan shaxsiy qabulga yozilishni tavsiya qilamiz.";
+      return "🫀 **Panik ataka va kuchli vahima paytida zudlik bilan yordam:**\n\n1. **4-7-8 Vagus nafas mashqi:** 4 soniya burundan chuqur nafas oling, 7 soniya ushlab turing, 8 soniya davomida og'izdan sekin chiqaring. 5 marta takrorlang.\n2. **Tana teginishini his qiling:** Oyoqlaringiz yerga mahkam tegib turganini, kaftlaringizni ishqalab issiqlikni his qiling.\n3. **Xotirjam bo'ling:** Panik ataka yurakka mutlaqo zarar yetkazmaydi, bu shunchaki miyaning xato xavf signalidir.\n\nIldizidan butunlay qutulish uchun Bag'ibekov Furqat bilan shaxsiy qabulga yozilishni tavsiya qilamiz.";
     }
 
     // 5. Munosabatlar / Er-Xotin / Oilaviy muammolar / Ayblash
     if (text.includes('munosabat') || text.includes('er') || text.includes('xotin') || text.includes('oila') || text.includes('sevgi') || text.includes('ayblash') || text.includes('xafa')) {
-      return "❤️ **Munosabatlar Psixologiyasi va Ichki Dasturlar:**\n\nFurqat Bag'ibekovning mualliflik qonuniga ko'ra: *«Biz ichki holatimizga mos insonlarni hayotimizga tortamiz. Dunyo va odamlar bizning ichki dasturlarimiz oynasidir.»*\n\nBoshqalarni ayblash yoki ularni o'zgartirishga urinish foyda bermaydi. Ichki dasturlaringizni (Qutqaruvchi, Ona, Qurbon rollarini) o'zgartirsangiz, atrofingizdagi insonlarning sizga munosabati ham butunlay ijobiy tomonga o'zgaradi.";
+      return "❤️ **Munosabatlar Psixologiyasi va Ichki Dasturlar:**\n\nFurqat Bag'ibekovning mualliflik qonuniga ko'ra:\n*«Biz ichki holatimizga mos insonlarni hayotimizga tortamiz. Dunyo va odamlar bizning ichki dasturlarimiz oynasidir.»*\n\n• **Boshqalarni ayblash foydasiz:** Atrofdagilarni o'zgartirishga urinish faqat quvvatni sarflaydi;\n• **Dasturni o'zgartirish:** Ichingizdagi Qutqaruvchi, Ona yoki Qurbon rollarini tozalaganingizda munosabatlar o'z-o'zidan iziga tushadi;\n• **Natija:** Oilada mehr, hurmat va chuqur tushunish qaror topadi.";
     }
 
     // 6. Uyqu / Charchoq / Depressiya
     if (text.includes('uyqu') || text.includes('charchoq') || text.includes('depressiya') || text.includes('holsiz')) {
-      return "🌙 **Uyqusizlik va Surunkali Charchoq sabablari:**\n\nKo'pincha miya neyronlari yuqori stress tufayli 'Beta-to'lqin'da qotib qoladi va kechasi o'chmaydi. Natijada inson 8 soat uxlasa ham charchab uyg'onadi.\n\nSokin Qalb metodikasi orqali miya neyronlari 'Delta' to'lqiniga moslanadi va 3-5 kun ichida chuqur, shifobaxsh uyqu tiklanadi.";
+      return "🌙 **Uyqusizlik va Surunkali Charchoq sabablari:**\n\nKo'pincha miya neyronlari yuqori stress tufayli **Beta-to'lqin**da qotib qoladi va kechasi o'chmaydi. Natijada inson 8 soat uxlasa ham charchab uyg'onadi.\n\n• **Delta To'lqinga O'tish:** Sokin Qalb metodikasi miyani shifobaxsh Delta to'lqiniga qaytaradi;\n• **Tiklanish:** 3-5 kun ichida uyqu chuqurlashadi va tongda energiya bilan uyg'onasiz.";
     }
 
     // 7. Moliyaviy Bloklar / Pul
     if (text.includes('moliya') || text.includes('pul') || text.includes('qashshoq') || text.includes('kambag')) {
-      return "💼 **Moliyaviy Xotirjamlik va Ong Osti:**\n\nMoliyaviy qiyinchiliklar ko'pincha pulning kamligida emas, balki ong ostidagi qashshoqlik qo'rquvi, pulga nisbatan aybdorlik hissi yoki o'z qadrini past baholash bilan bog'liq.\n\nIchki bloklar yechilganda, inson pul topish va uni saqlashdagi doimiy xavotirdan xalos bo'ladi.";
+      return "💼 **Moliyaviy Xotirjamlik va Ong Osti:**\n\nMoliyaviy qiyinchiliklar ko'pincha pulning kamligida emas, balki ong ostidagi qashshoqlik qo'rquvi, pulga nisbatan aybdorlik hissi yoki o'z qadrini past baholash bilan bog'liq.\n\n• **Ichki Cheklovlarni Yechish:** Moliyaviy qo'rquvlarni bartaraf etish;\n• **Barqaror O'sish:** Daromadni xotirjamlik va ishonch bilan oshirish imkoni yaratiladi.";
     }
 
     // 8. Narxlar / Kurslar / To'lov
     if (text.includes('narx') || text.includes('qancha') || text.includes('kurs') || text.includes('seans') || text.includes('tolov') || text.includes('pul')) {
-      return "💎 **Dasturlar va Seanslar Narxlari:**\n\n• **Bepul:** Diagnostika testi va Kirish video-darslari ($0);\n• **1$ dan 50$ gacha:** Mini-kurslar («G'azabni Boshqarish», «Ichki Bolalik Travmasi»);\n• **150$:** «30 Kunlik To'liq Transformatsiya» kursi;\n• **350$ - 500$:** Apparatli 3 Seans Kompleks (Konsultatsiya + Xitoy Kapsulasi + Fransiya Lampasi);\n• **1,200$:** VIP Tog' Retreati (Barchasi ichida).\n\n«Kurslar» bo'limida to'g'ridan-to'g'ri ro'yxatdan o'tishingiz mumkin.";
+      return "💎 **Dasturlar va Seanslar Narxlari:**\n\n• **$0 (Bepul):** Diagnostika testi va Bepul Kirish video-darslari;\n• **$1 - $50:** Mini-kurslar («G'azabni Boshqarish», «Ichki Bolalik Travmasi»);\n• **$150:** «30 Kunlik To'liq Transformatsiya» mualliflik kursi;\n• **$350 - $500:** Apparatli 3 Seans Kompleks (Konsultatsiya + Xitoy Kapsulasi + Fransiya Lampasi);\n• **$1,200:** VIP Tog' Retreati (Barchasi ichida).\n\n«Kurslar» bo'limida to'g'ridan-to'g'ri ro'yxatdan o'tishingiz mumkin.";
     }
 
     // 9. Shaxsiy Qabul / Konsultatsiyaga Yozilish / Furqat Bag'ibekov
     if (text.includes('konsultatsiya') || text.includes('qabul') || text.includes('yozilish') || text.includes('furqat') || text.includes('boglanish') || text.includes('aloqa')) {
-      return "👨‍⚕️ **Bag'ibekov Furqat Qabuliga Yozilish:**\n\nShaxsiy qabulda 12 yillik klinik tajriba asosida sizning holatingiz individual tahlil qilinadi, Xitoy kapsulasi va Fransiya lampasi seanslari belgilanadi.\n\nQabulga yozilish uchun pastdagi yoki yuqoridagi **«Qabulga Yozilish»** tugmasini bosing yoki admin bilan bog'laning: @sokinqalb_admin";
+      return "👨‍⚕️ **Bag'ibekov Furqat Qabuliga Yozilish:**\n\nShaxsiy qabulda 12 yillik klinik tajriba asosida sizning holatingiz individual tahlil qilinadi, Xitoy kapsulasi va Fransiya lampasi seanslari belgilanadi.\n\nQabulga yozilish uchun pastdagi **«Jonli Qabulga Yozilish»** tugmasini bosing yoki admin bilan bog'laning: @sokinqalb_admin";
     }
 
     // 10. Salomlashish
@@ -153,33 +243,33 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
         
         {/* Left: Chat Container */}
         <div className="lg:col-span-8 space-y-4 w-full">
-          <div className="glass-panel rounded-2xl sm:rounded-3xl border border-white/[0.08] shadow-2xl flex flex-col h-[520px] sm:h-[580px] overflow-hidden w-full bg-slate-900/90">
+          <div className="glass-panel rounded-2xl sm:rounded-3xl border border-white/[0.08] shadow-2xl flex flex-col h-[540px] sm:h-[600px] overflow-hidden w-full bg-slate-900/90">
             
             {/* Chat Messages Log — Internal Scroll ONLY */}
             <div 
               ref={chatContainerRef}
-              className="flex-1 p-3 sm:p-6 overflow-y-auto space-y-3 sm:space-y-4 scroll-smooth"
+              className="flex-1 p-3.5 sm:p-6 overflow-y-auto space-y-4 scroll-smooth"
             >
               {messages.map((m) => (
                 <div
                   key={m.id}
-                  className={`flex items-start space-x-2 sm:space-x-3 ${m.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
+                  className={`flex items-start space-x-2.5 sm:space-x-3.5 ${m.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
                 >
-                  <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg ${
                     m.sender === 'user' 
-                      ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white' 
-                      : 'bg-teal-500/20 border border-teal-500/40 text-teal-300'
+                      ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-indigo-500/20' 
+                      : 'bg-gradient-to-tr from-teal-500/20 to-cyan-500/20 border border-teal-500/40 text-teal-300 shadow-teal-500/15'
                   }`}>
                     {m.sender === 'user' ? <User className="w-4 h-4 sm:w-5 sm:h-5" /> : <Bot className="w-4 h-4 sm:w-5 sm:h-5" />}
                   </div>
 
-                  <div className={`max-w-[85%] rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed ${
+                  <div className={`max-w-[88%] sm:max-w-[84%] rounded-2xl p-3.5 sm:p-5 leading-relaxed shadow-xl ${
                     m.sender === 'user'
-                      ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-tr-none shadow-md'
-                      : 'glass-card border border-white/[0.08] text-slate-200 rounded-tl-none bg-slate-950/60'
+                      ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-tr-none shadow-teal-600/20 border border-teal-400/30'
+                      : 'glass-card border border-teal-500/20 text-slate-100 rounded-tl-none bg-slate-950/70'
                   }`}>
-                    <div className="whitespace-pre-wrap">{m.text}</div>
-                    <div className={`text-[9px] sm:text-[10px] mt-1.5 ${m.sender === 'user' ? 'text-teal-200 text-right' : 'text-slate-500'}`}>
+                    <FormattedMessage text={m.text} isUser={m.sender === 'user'} />
+                    <div className={`text-[9px] sm:text-[10px] mt-2 font-mono ${m.sender === 'user' ? 'text-teal-100 text-right' : 'text-slate-400'}`}>
                       {m.time}
                     </div>
                   </div>
@@ -187,8 +277,8 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
               ))}
 
               {isTyping && (
-                <div className="flex items-center space-x-1.5 text-teal-400 text-xs font-medium italic">
-                  <Bot className="w-3.5 h-3.5 animate-spin" />
+                <div className="flex items-center space-x-2 text-teal-400 text-xs font-medium italic bg-teal-950/40 p-2 rounded-xl border border-teal-500/20 w-fit">
+                  <Bot className="w-4 h-4 animate-spin text-teal-300" />
                   <span>AI tahlil qilmoqda...</span>
                 </div>
               )}
