@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import DiagnosticModule from './components/DiagnosticModule';
@@ -12,12 +12,53 @@ import AdminPanelDashboard from './components/AdminPanelDashboard';
 import ConsultBookingModal from './components/ConsultBookingModal';
 import PaymentModal from './components/PaymentModal';
 
+const getTabFromPath = () => {
+  if (typeof window === 'undefined') return 'home';
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  const validTabs = ['home', 'diagnostic', 'tasks', 'pillars', 'team', 'courses', 'gifts', 'ai-chat', 'admin'];
+  if (validTabs.includes(path)) return path;
+  if (path === 'diagnostika') return 'diagnostic';
+  if (path === 'reja') return 'tasks';
+  if (path === 'kurslar') return 'courses';
+  if (path === 'jamoa') return 'team';
+  if (path === 'sovg\'alar' || path === 'sovgalar') return 'gifts';
+  if (path === 'psixolog' || path === 'chat') return 'ai-chat';
+  return 'home';
+};
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTabState] = useState(getTabFromPath);
   const [isConsultOpen, setIsConsultOpen] = useState(false);
   const [consultDoctor, setConsultDoctor] = useState("Bag'ibekov Furqat");
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [selectedCourseForPayment, setSelectedCourseForPayment] = useState(null);
+
+  // Synchronize Tab and URL Path with instant scroll to top
+  const setActiveTab = (tab) => {
+    setActiveTabState(tab);
+    const newPath = tab === 'home' ? '/' : `/${tab}`;
+    if (window.location.pathname !== newPath) {
+      window.history.pushState({ tab }, '', newPath);
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  };
+
+  // Listen for browser Back/Forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const tab = getTabFromPath();
+      setActiveTabState(tab);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Always scroll to top on initial page load / refresh
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, []);
 
   const handleOpenConsult = (doctorName = "Bag'ibekov Furqat") => {
     setConsultDoctor(doctorName);
