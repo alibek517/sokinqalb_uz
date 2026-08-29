@@ -86,30 +86,30 @@ export default function ThreeNeuralBackground() {
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // 2. 3D Floating Harmonic Torus Knot (Wireframe Consciousness Symbol)
-    const torusGeo = new THREE.TorusKnotGeometry(45, 12, 100, 16);
+    // 2. 3D Floating Harmonic Torus Knot (Wireframe Consciousness Symbol on the Left Side)
+    const torusGeo = new THREE.TorusKnotGeometry(40, 10, 100, 16);
     const torusMat = new THREE.MeshBasicMaterial({
       color: 0x06b6d4,
       wireframe: true,
       transparent: true,
-      opacity: 0.08,
+      opacity: 0.09,
       blending: THREE.AdditiveBlending
     });
     const torusKnot = new THREE.Mesh(torusGeo, torusMat);
-    torusKnot.position.set(100, -20, -50);
+    torusKnot.position.set(-120, 10, -40); // Chap tomonga (Sarlavha orqasiga) joylashtirildi
     scene.add(torusKnot);
 
-    // 3. Second 3D Energy Sphere Wave
-    const sphereGeo = new THREE.IcosahedronGeometry(35, 2);
+    // 3. Second 3D Energy Sphere Wave (Far Left & Deep)
+    const sphereGeo = new THREE.IcosahedronGeometry(30, 2);
     const sphereMat = new THREE.MeshBasicMaterial({
       color: 0x14b8a6,
       wireframe: true,
       transparent: true,
-      opacity: 0.06,
+      opacity: 0.07,
       blending: THREE.AdditiveBlending
     });
     const energySphere = new THREE.Mesh(sphereGeo, sphereMat);
-    energySphere.position.set(-120, 60, -80);
+    energySphere.position.set(-160, -60, -70); // Pastki chap tomonga
     scene.add(energySphere);
 
     // Mouse Interaction
