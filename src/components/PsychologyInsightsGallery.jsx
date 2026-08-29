@@ -269,53 +269,57 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
 
       </div>
 
-      {/* Fullscreen High-Res Image Modal */}
+      {/* Fullscreen High-Res Image Modal — Perfectly Centered */}
       {selectedImage && (
         <div 
           onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in"
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="glass-panel max-w-4xl w-full max-h-[92vh] overflow-y-auto rounded-3xl border border-teal-500/40 p-4 sm:p-6 bg-slate-900/98 shadow-2xl relative space-y-4"
+            className="glass-panel max-w-2xl sm:max-w-3xl w-full my-auto rounded-3xl border border-teal-400/40 p-4 sm:p-6 bg-[#0b1322]/98 shadow-[0_0_50px_rgba(20,184,166,0.25)] relative flex flex-col justify-between max-h-[92vh] space-y-3 sm:space-y-4"
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div>
-                <h3 className="text-lg sm:text-xl font-black text-white">{selectedImage.title}</h3>
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
+              <div className="min-w-0 pr-2">
+                <h3 className="text-base sm:text-xl font-black text-white truncate">{selectedImage.title}</h3>
                 {selectedImage.subtitle && (
-                  <p className="text-xs text-teal-300 font-medium">{selectedImage.subtitle}</p>
+                  <p className="text-xs text-teal-300 font-medium truncate mt-0.5">{selectedImage.subtitle}</p>
                 )}
               </div>
               <button 
                 onClick={() => setSelectedImage(null)}
-                className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+                className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors flex-shrink-0 cursor-pointer"
+                aria-label="Yopish"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* High-res Image */}
-            <div className="rounded-2xl overflow-hidden bg-slate-950 flex items-center justify-center max-h-[60vh]">
+            {/* High-res Image Container — Centered & Scaled to Fit */}
+            <div className="rounded-2xl overflow-hidden bg-slate-950/90 flex items-center justify-center flex-1 max-h-[50vh] sm:max-h-[56vh] border border-white/[0.06] p-1">
               <img 
                 src={selectedImage.image} 
                 alt={selectedImage.title}
-                className="max-h-[60vh] w-auto object-contain rounded-xl"
+                className="max-h-[48vh] sm:max-h-[54vh] w-auto max-w-full object-contain rounded-xl drop-shadow-lg"
               />
             </div>
 
             {/* Description & Action */}
-            <div className="space-y-3 pt-2">
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <div className="space-y-3 pt-1 flex-shrink-0">
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-900/80 p-3 rounded-xl border border-white/[0.05]">
                 {selectedImage.description}
               </p>
-              <div className="flex justify-end pt-2">
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <span className="text-[11px] text-teal-400/80 font-medium hidden sm:inline">
+                  ✨ Sokin Qalb Mualliflik Metodikasi
+                </span>
                 <button
                   onClick={() => {
                     setSelectedImage(null);
                     onOpenConsultModal("Bag'ibekov Furqat");
                   }}
-                  className="px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-2"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/20 active:scale-95 border border-teal-400/30 ml-auto"
                 >
                   <PhoneCall className="w-4 h-4" />
                   <span>Konsultatsiyaga Yozilish</span>
