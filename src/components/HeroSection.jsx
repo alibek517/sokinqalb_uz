@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import FurqatDoctorPortrait from './FurqatDoctorPortrait';
 import PsychologyInsightsGallery from './PsychologyInsightsGallery';
+import TiltCard3D from './TiltCard3D';
+import Interactive3DBrainSphere from './Interactive3DBrainSphere';
 
 export default function HeroSection({ setActiveTab, onOpenConsultModal }) {
   return (
@@ -120,44 +122,55 @@ export default function HeroSection({ setActiveTab, onOpenConsultModal }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             
             {/* 1. China Capsule */}
-            <div className="glass-card p-5 sm:p-8 rounded-[2rem_1rem_2rem_1rem] relative overflow-hidden group border border-teal-500/20">
-              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-300 mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
-                <Cpu className="w-5 h-5 sm:w-7 sm:h-7" />
+            <TiltCard3D>
+              <div className="glass-card p-5 sm:p-8 rounded-[2rem_1rem_2rem_1rem] relative overflow-hidden group border border-teal-500/20 h-full">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-300 mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                  <Cpu className="w-5 h-5 sm:w-7 sm:h-7" />
+                </div>
+                <div className="text-[10px] sm:text-xs font-bold text-teal-400 uppercase tracking-wider mb-1">Xitoy Texnologiyasi</div>
+                <h3 className="text-base sm:text-xl font-bold text-white mb-2 leading-snug">Davolash Kapsulasi (Kapsulaterapiya)</h3>
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                  Tanadagi surunkali mushak qisilishlarini, psixosomatik bloklarni va taranglikni 
+                  chuqur relaksatsiya orqali butunlay bo'shatadi va tabiiy biologik quvvatni tiklaydi.
+                </p>
               </div>
-              <div className="text-[10px] sm:text-xs font-bold text-teal-400 uppercase tracking-wider mb-1">Xitoy Texnologiyasi</div>
-              <h3 className="text-base sm:text-xl font-bold text-white mb-2 leading-snug">Davolash Kapsulasi (Kapsulaterapiya)</h3>
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Tanadagi surunkali mushak qisilishlarini, psixosomatik bloklarni va taranglikni 
-                chuqur relaksatsiya orqali butunlay bo'shatadi va tabiiy biologik quvvatni tiklaydi.
-              </p>
-            </div>
+            </TiltCard3D>
 
             {/* 2. France Neuro-Lamp */}
-            <div className="glass-card p-5 sm:p-8 rounded-[1rem_2rem_1rem_2rem] relative overflow-hidden group border border-cyan-500/20">
-              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-300 mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
-                <Eye className="w-5 h-5 sm:w-7 sm:h-7" />
+            <TiltCard3D>
+              <div className="glass-card p-5 sm:p-8 rounded-[1rem_2rem_1rem_2rem] relative overflow-hidden group border border-cyan-500/20 h-full">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-300 mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                  <Eye className="w-5 h-5 sm:w-7 sm:h-7" />
+                </div>
+                <div className="text-[10px] sm:text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1">Fransiya Texnologiyasi</div>
+                <h3 className="text-base sm:text-xl font-bold text-white mb-2 leading-snug">Fransiya Neyro-Lampasi</h3>
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                  Ko'zga yo'naltirilgan maxsus stroboskopik to'lqinlar orqali miyani alfa va teta to'lqinlariga 
+                  tushirib, insonning ong osti bilan to'g'ridan-to'g'ri xavfsiz muloqot o'rnatadi.
+                </p>
               </div>
-              <div className="text-[10px] sm:text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1">Fransiya Texnologiyasi</div>
-              <h3 className="text-base sm:text-xl font-bold text-white mb-2 leading-snug">Fransiya Neyro-Lampasi</h3>
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Ko'zga yo'naltirilgan maxsus stroboskopik to'lqinlar orqali miyani alfa va teta to'lqinlariga 
-                tushirib, insonning ong osti bilan to'g'ridan-to'g'ri xavfsiz muloqot o'rnatadi.
-              </p>
-            </div>
+            </TiltCard3D>
 
             {/* 3. Neuro-acoustic Music */}
-            <div className="glass-card p-5 sm:p-8 rounded-[2rem_1rem_2rem_1rem] relative overflow-hidden group border border-indigo-500/20">
-              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-300 mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
-                <Music className="w-5 h-5 sm:w-7 sm:h-7" />
+            <TiltCard3D>
+              <div className="glass-card p-5 sm:p-8 rounded-[2rem_1rem_2rem_1rem] relative overflow-hidden group border border-indigo-500/20 h-full">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-300 mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                  <Music className="w-5 h-5 sm:w-7 sm:h-7" />
+                </div>
+                <div className="text-[10px] sm:text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Neyro-Akustika</div>
+                <h3 className="text-base sm:text-xl font-bold text-white mb-2 leading-snug">Maxsus Neyro-Akustik Terapiya</h3>
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                  Surunkali vahima, depressiv psixoz va qo'rquvlarning asl ildizini ochib, miya neyronlarini 
+                  to'liq tinchlantiradi va yangi sog'lom ruhiy dasturlarni mustahkamlaydi.
+                </p>
               </div>
-              <div className="text-[10px] sm:text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Neyro-Akustika</div>
-              <h3 className="text-base sm:text-xl font-bold text-white mb-2 leading-snug">Maxsus Neyro-Akustik Terapiya</h3>
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Surunkali vahima, depressiv psixoz va qo'rquvlarning asl ildizini ochib, miya neyronlarini 
-                to'liq tinchlantiradi va yangi sog'lom ruhiy dasturlarni mustahkamlaydi.
-              </p>
-            </div>
+            </TiltCard3D>
 
+          </div>
+
+          {/* Interactive 3D Holographic Brain Sphere Showcase */}
+          <div className="mt-8 sm:mt-12 flex flex-col items-center">
+            <Interactive3DBrainSphere />
           </div>
         </div>
 

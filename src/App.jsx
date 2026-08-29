@@ -11,6 +11,7 @@ import AIChatAssistant from './components/AIChatAssistant';
 import AdminPanelDashboard from './components/AdminPanelDashboard';
 import ConsultBookingModal from './components/ConsultBookingModal';
 import PaymentModal from './components/PaymentModal';
+import ThreeNeuralBackground from './components/ThreeNeuralBackground';
 
 const getTabFromPath = () => {
   if (typeof window === 'undefined') return 'home';
@@ -73,6 +74,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-transparent text-slate-100 flex flex-col selection:bg-teal-500/30 selection:text-teal-200 relative overflow-x-hidden">
       
+      {/* Interactive 3D Three.js WebGL Neural Background */}
+      <ThreeNeuralBackground />
+
       {/* Dynamic Animated Ambient Background Orbs (Gamma Style) */}
       <div className="fixed top-12 left-1/4 w-[400px] sm:w-[650px] h-[400px] sm:h-[650px] bg-gradient-to-tr from-teal-500/15 via-cyan-500/10 to-transparent blur-[140px] pointer-events-none rounded-full animate-pulse-glow -z-10" />
       <div className="fixed top-1/3 right-10 w-[350px] sm:w-[550px] h-[350px] sm:h-[550px] bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent blur-[160px] pointer-events-none rounded-full animate-pulse-glow -z-10" style={{ animationDelay: '2s' }} />
