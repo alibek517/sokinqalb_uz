@@ -133,7 +133,7 @@ export default function DiagnosticModule({ setActiveTab, onOpenConsultModal }) {
   const progressPercent = Math.round(((currentStep + 1) / DIAGNOSTIC_QUESTIONS.length) * 100);
 
   return (
-    <div className="py-8 sm:py-16 max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 w-full">
+    <div className="py-8 sm:py-16 max-w-6xl mx-auto px-2.5 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 w-full">
       
       {/* Header */}
       <div className="text-center space-y-2">
@@ -144,13 +144,37 @@ export default function DiagnosticModule({ setActiveTab, onOpenConsultModal }) {
         <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
           Ong Osti va Stress Diagnostikasi
         </h2>
-        <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto">
+        <p className="text-slate-400 text-xs sm:text-sm max-w-2xl mx-auto">
           Bag'ibekov Furqatning 10 ta maxsus klinik savoli orqali ichki holatingiz, psixosomatik spazmlar va stress darajangizni aniqlang
         </p>
       </div>
 
-      <div className="w-full flex justify-center">
-        <div className="w-full max-w-3xl">
+      {/* Main Container: Doctor Portrait on Left + Diagnostic / Results on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        
+        {/* Left Column: Furqat Doctor Portrait & Clinical Guidance */}
+        <div className="lg:col-span-5 flex flex-col items-center space-y-4">
+          <div className="w-full flex justify-center">
+            <FurqatDoctorPortrait 
+              imageSrc="/furqat_diagnostic.jpg" 
+              size="wide" 
+              direction="left" 
+            />
+          </div>
+
+          <div className="glass-panel p-4 rounded-2xl border border-teal-500/20 bg-slate-900/80 text-center space-y-1.5 max-w-[380px] w-full">
+            <div className="flex items-center justify-center space-x-1.5 text-teal-300 font-bold text-xs">
+              <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+              <span>Furqat Bag'ibekov Yo'riqnomasi:</span>
+            </div>
+            <p className="text-slate-300 text-[11px] sm:text-xs leading-relaxed">
+              "Har bir savolga his-tuyg'ularingizga quloq solib, o'zingizga 100% rostgo'y javob bering. Shunda ong ostidagi haqiqiy sabab aniqlanadi."
+            </p>
+          </div>
+        </div>
+
+        {/* Right Column: Active Quiz or Results Screen */}
+        <div className="lg:col-span-7 w-full">
           
           {!isCompleted ? (
             /* ACTIVE QUIZ CARD */
