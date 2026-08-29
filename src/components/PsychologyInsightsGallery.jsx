@@ -174,8 +174,6 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
           ))}
         </div>
 
-        </div>
-
       </div>
 
       {/* Fullscreen High-Res Image Modal — 100% Locked Screen Center */}
