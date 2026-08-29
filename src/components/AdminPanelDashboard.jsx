@@ -26,9 +26,69 @@ import {
   X,
   PhoneCall,
   Flame,
-  ArrowRight
+  ArrowRight,
+  Globe,
+  Radio
 } from 'lucide-react';
 import { INITIAL_TEAM, INITIAL_COURSES, INITIAL_GIFTS, HOURLY_ROUTINE } from '../data/initialData';
+
+// Platform indicator badge
+const PlatformBadge = ({ platform = 'both' }) => {
+  if (platform === 'web') {
+    return (
+      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 inline-flex items-center space-x-1">
+        <Globe className="w-2.5 h-2.5" />
+        <span>Faqat Sayt</span>
+      </span>
+    );
+  }
+  if (platform === 'bot') {
+    return (
+      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-950/80 border border-amber-500/40 text-amber-300 inline-flex items-center space-x-1">
+        <Bot className="w-2.5 h-2.5" />
+        <span>Faqat Bot</span>
+      </span>
+    );
+  }
+  return (
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 inline-flex items-center space-x-1">
+      <Radio className="w-2.5 h-2.5" />
+      <span>Sayt & Bot</span>
+    </span>
+  );
+};
+
+// 3-Way Target Platform Selector Component
+const PlatformSelector = ({ value = 'both', onChange }) => {
+  return (
+    <div className="space-y-1.5 pt-1">
+      <label className="block text-slate-300 font-bold text-xs">
+        Qayerda ko'rinsin / o'zgarsin? (Platforma):
+      </label>
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { id: 'both', label: '🔄 Ikkalasida ham', sub: 'Sayt + Telegram Bot' },
+          { id: 'web', label: '🌐 Faqat Saytda', sub: 'Web-versiya' },
+          { id: 'bot', label: '🤖 Faqat Botda', sub: 'Telegram Bot' }
+        ].map((opt) => (
+          <button
+            key={opt.id}
+            type="button"
+            onClick={() => onChange(opt.id)}
+            className={`p-2 rounded-xl text-xs text-center border transition-all cursor-pointer ${
+              value === opt.id
+                ? 'bg-teal-500/25 border-teal-400 text-teal-200 font-bold shadow-md shadow-teal-500/15'
+                : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+            }`}
+          >
+            <div className="leading-tight">{opt.label}</div>
+            <div className="text-[9px] text-slate-500 mt-0.5">{opt.sub}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default function AdminPanelDashboard() {
   // --- 1. PIN CODE SECURITY (0189) ---
@@ -76,7 +136,8 @@ export default function AdminPanelDashboard() {
     badge: 'Yangi Kurs',
     duration: '1 oy',
     description: '',
-    lessons_count: 5
+    lessons_count: 5,
+    target_platform: 'both' // 'both' | 'web' | 'bot'
   });
 
   const handleOpenAddCourse = () => {
@@ -90,7 +151,8 @@ export default function AdminPanelDashboard() {
       badge: 'Amaliy Dastur',
       duration: '1 oy',
       description: 'Bag\'ibekov Furqatning chuqur psixoterapevtik video-darsligi.',
-      lessons_count: 5
+      lessons_count: 5,
+      target_platform: 'both'
     });
     setShowCourseModal(true);
   };
@@ -106,7 +168,8 @@ export default function AdminPanelDashboard() {
       badge: course.badge || 'Premium',
       duration: course.duration || '1 oy',
       description: course.description || '',
-      lessons_count: course.lessons_count || (course.lessons?.length || 5)
+      lessons_count: course.lessons_count || (course.lessons?.length || 5),
+      target_platform: course.target_platform || 'both'
     });
     setShowCourseModal(true);
   };
@@ -167,7 +230,8 @@ export default function AdminPanelDashboard() {
     title: '',
     required_friends: 1,
     reward_course_key: '1usd',
-    description: ''
+    description: '',
+    target_platform: 'both' // 'both' | 'web' | 'bot'
   });
 
   const handleOpenAddGift = () => {
@@ -176,7 +240,8 @@ export default function AdminPanelDashboard() {
       title: '1$ Kurs (1 ta darslik)',
       required_friends: 1,
       reward_course_key: '1usd',
-      description: '1 ta do\'stingizni taklif qiling va 1$ lik video-darslikni bepul oching!'
+      description: '1 ta do\'stingizni taklif qiling va 1$ lik video-darslikni bepul oching!',
+      target_platform: 'both'
     });
     setShowGiftModal(true);
   };
@@ -187,7 +252,8 @@ export default function AdminPanelDashboard() {
       title: gift.title || '',
       required_friends: gift.required_friends || 1,
       reward_course_key: gift.reward_course_key || '1usd',
-      description: gift.description || ''
+      description: gift.description || '',
+      target_platform: gift.target_platform || 'both'
     });
     setShowGiftModal(true);
   };
@@ -234,7 +300,8 @@ export default function AdminPanelDashboard() {
     experience: '',
     methodology: '',
     photo_url: '',
-    directions: ''
+    directions: '',
+    target_platform: 'both' // 'both' | 'web' | 'bot'
   });
 
   const handleOpenAddMember = () => {
@@ -245,7 +312,8 @@ export default function AdminPanelDashboard() {
       experience: '8 yillik tajriba',
       methodology: 'Xitoy Kapsulasi va Fransiya Neyro-Lampasi orqali davolash.',
       photo_url: '/furqat_hero.png',
-      directions: 'Psixosomatika, Vahima, Oilaviy munosabatlar'
+      directions: 'Psixosomatika, Vahima, Oilaviy munosabatlar',
+      target_platform: 'both'
     });
     setShowMemberModal(true);
   };
@@ -258,7 +326,8 @@ export default function AdminPanelDashboard() {
       experience: member.experience || '',
       methodology: member.methodology || '',
       photo_url: member.photo_url || member.avatar_url || '',
-      directions: Array.isArray(member.directions) ? member.directions.join(', ') : (member.directions || '')
+      directions: Array.isArray(member.directions) ? member.directions.join(', ') : (member.directions || ''),
+      target_platform: member.target_platform || 'both'
     });
     setShowMemberModal(true);
   };
@@ -317,7 +386,8 @@ export default function AdminPanelDashboard() {
     time: '08:00',
     title: '',
     benefit: '',
-    description: ''
+    description: '',
+    target_platform: 'both' // 'both' | 'web' | 'bot'
   });
 
   const handleOpenAddTask = () => {
@@ -326,7 +396,8 @@ export default function AdminPanelDashboard() {
       time: '08:00',
       title: '',
       benefit: 'Miyani tetiklashtiradi va energiya beradi.',
-      description: '3 daqiqalik chuqur nafas va minnatdorlik amaliyoti.'
+      description: '3 daqiqalik chuqur nafas va minnatdorlik amaliyoti.',
+      target_platform: 'both'
     });
     setShowTaskModal(true);
   };
@@ -337,7 +408,8 @@ export default function AdminPanelDashboard() {
       time: task.time || '',
       title: task.title || '',
       benefit: task.benefit || '',
-      description: task.description || ''
+      description: task.description || '',
+      target_platform: task.target_platform || 'both'
     });
     setShowTaskModal(true);
   };
@@ -541,13 +613,16 @@ export default function AdminPanelDashboard() {
             {courses.map((course) => (
               <div key={course.id} className="glass-panel p-5 rounded-2xl border border-white/[0.08] flex flex-col justify-between space-y-4 bg-slate-900/90 shadow-lg">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-1.5">
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full badge-teal">
                       {course.badge || (course.is_free ? "🎁 BEPUL" : "💎 PULLIK")}
                     </span>
-                    <span className="text-sm font-black text-teal-300">{course.price}</span>
+                    <PlatformBadge platform={course.target_platform} />
                   </div>
-                  <h4 className="font-bold text-white text-base leading-snug">{course.title}</h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-white text-base leading-snug">{course.title}</h4>
+                    <span className="text-sm font-black text-teal-300 ml-2 whitespace-nowrap">{course.price}</span>
+                  </div>
                   <p className="text-xs text-slate-400 line-clamp-3">{course.description}</p>
                 </div>
 
@@ -600,7 +675,7 @@ export default function AdminPanelDashboard() {
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-950/80 border border-teal-500/40 text-teal-300">
                       👥 {gift.required_friends} ta do'st taklifiga
                     </span>
-                    <Gift className="w-4 h-4 text-teal-400" />
+                    <PlatformBadge platform={gift.target_platform} />
                   </div>
                   <h4 className="font-bold text-white text-base leading-snug">{gift.title}</h4>
                   <p className="text-xs text-slate-300 leading-relaxed">{gift.description}</p>
@@ -656,16 +731,19 @@ export default function AdminPanelDashboard() {
             {team.map((member) => (
               <div key={member.id} className="glass-panel p-5 rounded-2xl border border-white/[0.08] flex flex-col justify-between space-y-4 bg-slate-900/90 shadow-lg">
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <img 
-                      src={member.photo_url || member.avatar_url || "/furqat_hero.png"} 
-                      alt={member.name}
-                      className="w-12 h-12 rounded-xl object-cover border border-teal-500/30"
-                    />
-                    <div>
-                      <h4 className="font-bold text-white text-base">{member.name}</h4>
-                      <p className="text-xs text-teal-300 font-semibold">{member.title}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <img 
+                        src={member.photo_url || member.avatar_url || "/furqat_hero.png"} 
+                        alt={member.name}
+                        className="w-12 h-12 rounded-xl object-cover border border-teal-500/30"
+                      />
+                      <div>
+                        <h4 className="font-bold text-white text-base">{member.name}</h4>
+                        <p className="text-xs text-teal-300 font-semibold">{member.title}</p>
+                      </div>
                     </div>
+                    <PlatformBadge platform={member.target_platform} />
                   </div>
                   <p className="text-xs text-slate-400 font-mono">📅 {member.experience}</p>
                   <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">{member.methodology}</p>
@@ -720,7 +798,10 @@ export default function AdminPanelDashboard() {
                     {task.time}
                   </span>
                   <div>
-                    <h4 className="font-bold text-white text-sm sm:text-base">{task.title}</h4>
+                    <div className="flex items-center space-x-2">
+                      <h4 className="font-bold text-white text-sm sm:text-base">{task.title}</h4>
+                      <PlatformBadge platform={task.target_platform} />
+                    </div>
                     <p className="text-xs text-teal-200/90 font-medium mt-0.5">{task.benefit}</p>
                     <p className="text-xs text-slate-400 mt-1">{task.description}</p>
                   </div>
@@ -825,6 +906,12 @@ export default function AdminPanelDashboard() {
                 />
               </div>
 
+              {/* Target Platform Selector (Sayt / Bot / Ikkalasida) */}
+              <PlatformSelector 
+                value={courseFormData.target_platform} 
+                onChange={(val) => setCourseFormData({ ...courseFormData, target_platform: val })} 
+              />
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-300 font-bold mb-1">Narxi (Matn):</label>
@@ -915,6 +1002,12 @@ export default function AdminPanelDashboard() {
                 />
               </div>
 
+              {/* Target Platform Selector (Sayt / Bot / Ikkalasida) */}
+              <PlatformSelector 
+                value={giftFormData.target_platform} 
+                onChange={(val) => setGiftFormData({ ...giftFormData, target_platform: val })} 
+              />
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-300 font-bold mb-1">Kerakli do'stlar soni:</label>
@@ -994,6 +1087,12 @@ export default function AdminPanelDashboard() {
                   className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
                 />
               </div>
+
+              {/* Target Platform Selector (Sayt / Bot / Ikkalasida) */}
+              <PlatformSelector 
+                value={memberFormData.target_platform} 
+                onChange={(val) => setMemberFormData({ ...memberFormData, target_platform: val })} 
+              />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -1094,6 +1193,12 @@ export default function AdminPanelDashboard() {
                   />
                 </div>
               </div>
+
+              {/* Target Platform Selector (Sayt / Bot / Ikkalasida) */}
+              <PlatformSelector 
+                value={taskFormData.target_platform} 
+                onChange={(val) => setTaskFormData({ ...taskFormData, target_platform: val })} 
+              />
 
               <div>
                 <label className="block text-slate-300 font-bold mb-1">Foydasi (Benefit):</label>
