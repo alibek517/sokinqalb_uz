@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Sparkles, 
   BookOpen, 
@@ -7,16 +8,28 @@ import {
   ArrowRight, 
   HeartHandshake, 
   ShieldCheck, 
-  PhoneCall,
-  Brain,
-  Layers,
-  CheckCircle2,
-  Filter
+  PhoneCall, 
+  Brain, 
+  Layers, 
+  CheckCircle2, 
+  Filter 
 } from 'lucide-react';
 
 export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiveTab }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
+
+  // Lock body scroll when modal is active
+  useEffect(() => {
+    if (selectedImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedImage]);
 
   const infographics = [
     {
@@ -176,15 +189,16 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
 
       </div>
 
-      {/* Fullscreen High-Res Image Modal — 100% Locked Screen Center */}
-      {selectedImage && (
+      {/* React Portal to document.body: 100% Guaranteed Absolute Monitor Screen Center */}
+      {selectedImage && typeof document !== 'undefined' && createPortal(
         <div 
           onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 animate-fade-in"
+          className="fixed inset-0 z-[999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, margin: 0 }}
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="glass-panel max-w-lg sm:max-w-2xl w-full max-h-[88vh] rounded-3xl border border-teal-400/50 p-4 sm:p-6 bg-[#0b1322] shadow-[0_0_80px_rgba(0,0,0,0.95)] relative flex flex-col justify-between overflow-hidden animate-scale-up space-y-3"
+            className="glass-panel max-w-lg sm:max-w-xl w-full max-h-[88vh] rounded-3xl border border-teal-400/50 p-4 sm:p-6 bg-[#0b1322] shadow-[0_0_80px_rgba(0,0,0,0.95)] relative flex flex-col justify-between overflow-hidden animate-scale-up space-y-3"
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 flex-shrink-0">
@@ -226,7 +240,7 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
                     setSelectedImage(null);
                     onOpenConsultModal("Bag'ibekov Furqat");
                   }}
-                  className="w-full sm:w-auto px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/20 active:scale-95 border border-teal-400/30 ml-auto"
+                  className="w-full sm:w-auto px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/20 active:scale-95 border border-teal-400/30 ml-auto cursor-pointer"
                 >
                   <PhoneCall className="w-4 h-4" />
                   <span>Konsultatsiyaga Yozilish</span>
@@ -234,7 +248,8 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );
