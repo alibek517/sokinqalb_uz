@@ -10,51 +10,87 @@ import {
   PhoneCall,
   Brain,
   Layers,
-  CheckCircle2
+  CheckCircle2,
+  Filter
 } from 'lucide-react';
 
 export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiveTab }) {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('all');
 
   const infographics = [
     {
       id: 1,
+      category: "mindset",
       title: "Ichki Holat — Tashqi Dunyo",
       subtitle: "Ichki Xaos va Tashqi Voqelik O'rtasidagi Bog'liqlik",
       description: "Bizning ichki dunyomiz tashqi voqelikni yaratadi. Agar ichingizda tartibsizlik va stress bo'lsa, tashqi hayotingizda ham xuddi shunday vaziyatlar yuzaga keladi.",
       image: "/infographic_inner_chaos.jpg",
       tag: "Ong Osti Qonuniyatlari",
-      color: "from-amber-500/20 to-orange-500/20",
       borderColor: "border-amber-500/30",
       textColor: "text-amber-300"
     },
     {
       id: 2,
+      category: "transformation",
       title: "Haqiqiy O'zgarish Sening Ichingda!",
       subtitle: "Ichki Programmalarni Yangilash & Yangi Hayot",
       description: "Atrofimizda imkoniyatlar ko'p, ammo ong osti bloklari ularni ko'rishga to'sqinlik qiladi. Ichki dasturlaringizni o'zgartirsangiz, butun hayotingiz o'zgaradi.",
       image: "/infographic_inner_transformation.png",
       tag: "Transformatsiya",
-      color: "from-teal-500/20 to-cyan-500/20",
       borderColor: "border-teal-500/30",
       textColor: "text-teal-300"
     },
     {
       id: 3,
+      category: "relationships",
       title: "Kimni Chaqirasiz? (Munosabatlar Matritsasi)",
       subtitle: "Qutqaruvchi, Qurbon va Mas'uliyat Ssenariylari",
       description: "Qanday ichki dasturda yashasangiz, hayotingizga shunday insonlar kirib keladi: Haddan tashqari mas'uliyatli bo'lsangiz mas'uliyatsiz, Qutqaruvchi bo'lsangiz qurbon tortiladi.",
       image: "/infographic_relationships_matrix.png",
-      tag: "Munosabatlar Psixologiyasi",
-      color: "from-indigo-500/20 to-purple-500/20",
+      tag: "Munosabatlar",
       borderColor: "border-indigo-500/30",
       textColor: "text-indigo-300"
+    },
+    {
+      id: 4,
+      category: "relationships",
+      title: "O'z Programmamizning Aksi",
+      subtitle: "Magnit Qonuni: Ichki Dastur va Erkakning Dasturi",
+      description: "Biz ichki holatimizga mos keladigan odamlarni hayotimizga tortamiz. Dunyo va odamlar bizning ichki dasturlarimizning oynasidir. Bu haqiqat.",
+      image: "/infographic_magnet_mirror.png",
+      tag: "Moslik Qonuni",
+      borderColor: "border-cyan-500/30",
+      textColor: "text-cyan-300"
+    },
+    {
+      id: 5,
+      category: "mindset",
+      title: "Ayblashning Befoydaligi",
+      subtitle: "Tanqid va Xafagarchilik Illuziyasidan Chiqish",
+      description: "Erkaklarni tanqid qilish, ulardan xafa bo'lish yoki ularni 'yomon' deb atashning ma'nosi yo'q. Bu shunchaki vaqtinchalik 'og'riq qoldiruvchi' vosita va sizning shaxsiy illyuziyangiz.",
+      image: "/infographic_blaming_useless.png",
+      tag: "Ruhiy Yetuklik",
+      borderColor: "border-pink-500/30",
+      textColor: "text-pink-300"
     }
   ];
 
+  const categories = [
+    { id: 'all', label: 'Barchasi (5 ta Dars)' },
+    { id: 'mindset', label: '🧠 Ong Osti Qonunlari' },
+    { id: 'relationships', label: '❤️ Munosabatlar Psixologiyasi' },
+    { id: 'transformation', label: '✨ Shaxsiy O\'zgarish' }
+  ];
+
+  const filteredInfographics = infographics.filter(item => {
+    if (activeCategory === 'all') return true;
+    return item.category === activeCategory;
+  });
+
   return (
     <section className="py-12 sm:py-20 w-full">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-10 sm:space-y-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-10 sm:space-y-14">
         
         {/* Section Title */}
         <div className="text-center space-y-2.5">
@@ -63,16 +99,33 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
             <span>Mualliflik Psixologik Infografikalari</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Bag'ibekov Furqatning Amaliy Psixologik Tahlillari
+            Bag'ibekov Furqatning Amaliy Psixologik Darslari
           </h2>
           <p className="text-slate-400 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed">
-            Ong osti dasturlari, oilaviy munosabatlar va ichki erkinlikka erishishning ko'rgazmali tahlillari
+            Ong osti dasturlari, oilaviy munosabatlar va ichki erkinlikka erishishning ko'rgazmali infografikalari
           </p>
+
+          {/* Category Filter Chips */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  activeCategory === cat.id
+                    ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/30'
+                    : 'glass-card text-slate-300 hover:text-white border border-white/10'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* 3 Visual Infographics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-stretch">
-          {infographics.map((item) => (
+        {/* Visual Infographics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+          {filteredInfographics.map((item) => (
             <div 
               key={item.id}
               onClick={() => setSelectedImage(item)}
@@ -93,14 +146,14 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
                     <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-white border border-white/20 shadow-md">
                       {item.tag}
                     </span>
-                    <div className="w-8 h-8 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-teal-300 group-hover:scale-110 transition-transform">
+                    <div className="w-8 h-8 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-teal-300 group-hover:scale-110 transition-transform shadow-lg">
                       <ZoomIn className="w-4 h-4" />
                     </div>
                   </div>
                 </div>
 
                 {/* Card Body */}
-                <div className="p-4 sm:p-6 space-y-2.5">
+                <div className="p-4 sm:p-6 space-y-2">
                   <h3 className="text-base sm:text-lg font-black text-white group-hover:text-teal-300 transition-colors leading-snug">
                     {item.title}
                   </h3>
@@ -121,7 +174,7 @@ export default function PsychologyInsightsGallery({ onOpenConsultModal, setActiv
           ))}
         </div>
 
-        {/* Real Clinic Consultation Showcase Banner (Using furqat_office_suit.jpg & furqat_office_casual.jpg) */}
+        {/* Real Clinic Consultation Showcase Banner */}
         <div className="glass-panel rounded-3xl border border-teal-500/30 p-6 sm:p-10 bg-gradient-to-r from-slate-900/95 via-[#0b1526]/95 to-slate-900/95 shadow-2xl relative overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
