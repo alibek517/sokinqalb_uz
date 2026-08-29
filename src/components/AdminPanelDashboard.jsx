@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   Users, 
@@ -16,55 +16,362 @@ import {
   Sparkles, 
   Upload,
   Copy,
-  Eye
+  Eye,
+  Lock,
+  Unlock,
+  KeyRound,
+  LogOut,
+  Clock,
+  Check,
+  X,
+  PhoneCall,
+  Flame,
+  ArrowRight
 } from 'lucide-react';
-import { INITIAL_TEAM, INITIAL_COURSES, REFERRAL_REWARDS } from '../data/initialData';
+import { INITIAL_TEAM, INITIAL_COURSES, INITIAL_GIFTS, HOURLY_ROUTINE } from '../data/initialData';
 
 export default function AdminPanelDashboard() {
-  const [activeAdminTab, setActiveAdminTab] = useState('stats');
-
-  // Team state
-  const [team, setTeam] = useState(() => {
-    const saved = localStorage.getItem('sokinqalb_team_members');
-    return saved ? JSON.parse(saved) : INITIAL_TEAM;
+  // --- 1. PIN CODE SECURITY (0189) ---
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('sokinqalb_admin_auth') === 'true';
   });
-  const [showAddMember, setShowAddMember] = useState(false);
-  const [newMember, setNewMember] = useState({
-    name: '',
-    title: '',
-    experience: '',
-    directions: '',
-    methodology: '',
-    photo_url: ''
-  });
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState(false);
 
-  // Courses state
+  const handlePinSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (pinInput === '0189') {
+      setIsAuthenticated(true);
+      localStorage.setItem('sokinqalb_admin_auth', 'true');
+      setPinError(false);
+    } else {
+      setPinError(true);
+      setPinInput('');
+      setTimeout(() => setPinError(false), 3000);
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('sokinqalb_admin_auth');
+    setPinInput('');
+  };
+
+  // --- 2. ADMIN TABS ---
+  const [activeAdminTab, setActiveAdminTab] = useState('courses');
+
+  // --- 3. COURSES STATE & CRUD ---
   const [courses, setCourses] = useState(() => {
     const saved = localStorage.getItem('sokinqalb_courses_list');
     return saved ? JSON.parse(saved) : INITIAL_COURSES;
   });
-  const [showAddCourse, setShowAddCourse] = useState(false);
-  const [newCourse, setNewCourse] = useState({
+  const [editingCourse, setEditingCourse] = useState(null);
+  const [showCourseModal, setShowCourseModal] = useState(false);
+  const [courseFormData, setCourseFormData] = useState({
     title: '',
+    category: 'course',
     price: '',
-    is_free: false,
+    price_usd: 0,
+    price_uzs: 0,
+    badge: 'Yangi Kurs',
+    duration: '1 oy',
     description: '',
     lessons_count: 5
   });
 
-  // Gifts state
+  const handleOpenAddCourse = () => {
+    setEditingCourse(null);
+    setCourseFormData({
+      title: '',
+      category: 'course',
+      price: '10$ (~128 000 so\'m)',
+      price_usd: 10,
+      price_uzs: 128000,
+      badge: 'Amaliy Dastur',
+      duration: '1 oy',
+      description: 'Bag\'ibekov Furqatning chuqur psixoterapevtik video-darsligi.',
+      lessons_count: 5
+    });
+    setShowCourseModal(true);
+  };
+
+  const handleOpenEditCourse = (course) => {
+    setEditingCourse(course);
+    setCourseFormData({
+      title: course.title || '',
+      category: course.category || 'course',
+      price: course.price || '',
+      price_usd: course.price_usd || 0,
+      price_uzs: course.price_uzs || 0,
+      badge: course.badge || 'Premium',
+      duration: course.duration || '1 oy',
+      description: course.description || '',
+      lessons_count: course.lessons_count || (course.lessons?.length || 5)
+    });
+    setShowCourseModal(true);
+  };
+
+  const handleSaveCourse = (e) => {
+    e.preventDefault();
+    if (!courseFormData.title.trim()) return;
+
+    let updatedCourses;
+    if (editingCourse) {
+      updatedCourses = courses.map(c => {
+        if (c.id === editingCourse.id) {
+          return {
+            ...c,
+            ...courseFormData,
+            is_free: courseFormData.price_usd === 0 || courseFormData.price.toLowerCase().includes('bepul')
+          };
+        }
+        return c;
+      });
+    } else {
+      const newCourseItem = {
+        id: Date.now(),
+        course_key: `course_${Date.now()}`,
+        ...courseFormData,
+        is_free: courseFormData.price_usd === 0 || courseFormData.price.toLowerCase().includes('bepul'),
+        author: "Psixoterapevt Bag'ibekov Furqat",
+        features: ["To'liq video-darsliklar", "Amaliy nafas mashqlari", "Klinik tavsiyalar"],
+        lessons: [
+          { id: 1, title: "1-Dars: Ong osti bloklarini ochish", type: "video", duration: "18:00" },
+          { id: 2, title: "2-Dars: Tana psixosomatikasini yechish", type: "video", duration: "22:30" }
+        ]
+      };
+      updatedCourses = [newCourseItem, ...courses];
+    }
+
+    setCourses(updatedCourses);
+    localStorage.setItem('sokinqalb_courses_list', JSON.stringify(updatedCourses));
+    setShowCourseModal(false);
+  };
+
+  const handleDeleteCourse = (id) => {
+    if (window.confirm("Rostdan ham ushbu kursni o'chirmoqchimisiz?")) {
+      const updated = courses.filter(c => c.id !== id);
+      setCourses(updated);
+      localStorage.setItem('sokinqalb_courses_list', JSON.stringify(updated));
+    }
+  };
+
+  // --- 4. GIFTS & REFERRAL REWARDS CRUD ---
   const [gifts, setGifts] = useState(() => {
     const saved = localStorage.getItem('sokinqalb_referral_gifts');
-    return saved ? JSON.parse(saved) : REFERRAL_REWARDS;
+    return saved ? JSON.parse(saved) : INITIAL_GIFTS;
   });
-  const [showAddGift, setShowAddGift] = useState(false);
-  const [newGift, setNewGift] = useState({
+  const [editingGift, setEditingGift] = useState(null);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [giftFormData, setGiftFormData] = useState({
     title: '',
-    required_friends: 5,
+    required_friends: 1,
+    reward_course_key: '1usd',
     description: ''
   });
 
-  // Receipts state
+  const handleOpenAddGift = () => {
+    setEditingGift(null);
+    setGiftFormData({
+      title: '1$ Kurs (1 ta darslik)',
+      required_friends: 1,
+      reward_course_key: '1usd',
+      description: '1 ta do\'stingizni taklif qiling va 1$ lik video-darslikni bepul oching!'
+    });
+    setShowGiftModal(true);
+  };
+
+  const handleOpenEditGift = (gift) => {
+    setEditingGift(gift);
+    setGiftFormData({
+      title: gift.title || '',
+      required_friends: gift.required_friends || 1,
+      reward_course_key: gift.reward_course_key || '1usd',
+      description: gift.description || ''
+    });
+    setShowGiftModal(true);
+  };
+
+  const handleSaveGift = (e) => {
+    e.preventDefault();
+    if (!giftFormData.title.trim()) return;
+
+    let updatedGifts;
+    if (editingGift) {
+      updatedGifts = gifts.map(g => g.id === editingGift.id ? { ...g, ...giftFormData } : g);
+    } else {
+      const newGiftItem = {
+        id: Date.now(),
+        gift_key: `gift_${Date.now()}`,
+        ...giftFormData
+      };
+      updatedGifts = [...gifts, newGiftItem];
+    }
+
+    setGifts(updatedGifts);
+    localStorage.setItem('sokinqalb_referral_gifts', JSON.stringify(updatedGifts));
+    setShowGiftModal(false);
+  };
+
+  const handleDeleteGift = (id) => {
+    if (window.confirm("Ushbu sovg'a/mukofotni o'chirmoqchimisiz?")) {
+      const updated = gifts.filter(g => g.id !== id);
+      setGifts(updated);
+      localStorage.setItem('sokinqalb_referral_gifts', JSON.stringify(updated));
+    }
+  };
+
+  // --- 5. TEAM MEMBERS CRUD ---
+  const [team, setTeam] = useState(() => {
+    const saved = localStorage.getItem('sokinqalb_team_members');
+    return saved ? JSON.parse(saved) : INITIAL_TEAM;
+  });
+  const [editingMember, setEditingMember] = useState(null);
+  const [showMemberModal, setShowMemberModal] = useState(false);
+  const [memberFormData, setMemberFormData] = useState({
+    name: '',
+    title: '',
+    experience: '',
+    methodology: '',
+    photo_url: '',
+    directions: ''
+  });
+
+  const handleOpenAddMember = () => {
+    setEditingMember(null);
+    setMemberFormData({
+      name: '',
+      title: 'Yetakchi Psixoterapevt',
+      experience: '8 yillik tajriba',
+      methodology: 'Xitoy Kapsulasi va Fransiya Neyro-Lampasi orqali davolash.',
+      photo_url: '/furqat_hero.png',
+      directions: 'Psixosomatika, Vahima, Oilaviy munosabatlar'
+    });
+    setShowMemberModal(true);
+  };
+
+  const handleOpenEditMember = (member) => {
+    setEditingMember(member);
+    setMemberFormData({
+      name: member.name || '',
+      title: member.title || '',
+      experience: member.experience || '',
+      methodology: member.methodology || '',
+      photo_url: member.photo_url || member.avatar_url || '',
+      directions: Array.isArray(member.directions) ? member.directions.join(', ') : (member.directions || '')
+    });
+    setShowMemberModal(true);
+  };
+
+  const handleSaveMember = (e) => {
+    e.preventDefault();
+    if (!memberFormData.name.trim()) return;
+
+    const dirsArray = memberFormData.directions.split(',').map(s => s.trim()).filter(Boolean);
+
+    let updatedTeam;
+    if (editingMember) {
+      updatedTeam = team.map(m => {
+        if (m.id === editingMember.id) {
+          return {
+            ...m,
+            ...memberFormData,
+            directions: dirsArray
+          };
+        }
+        return m;
+      });
+    } else {
+      const newDoc = {
+        id: Date.now(),
+        member_key: `doc_${Date.now()}`,
+        ...memberFormData,
+        avatar_url: memberFormData.photo_url,
+        directions: dirsArray,
+        achievements: ["1,500+ muvaffaqiyatli bemorlar", "4.9 / 5.0 mijozlar bahosi"]
+      };
+      updatedTeam = [...team, newDoc];
+    }
+
+    setTeam(updatedTeam);
+    localStorage.setItem('sokinqalb_team_members', JSON.stringify(updatedTeam));
+    setShowMemberModal(false);
+  };
+
+  const handleDeleteMember = (id) => {
+    if (window.confirm("Rostdan ham ushbu shifokorni jamoa ro'yxatidan o'chirmoqchimisiz?")) {
+      const updated = team.filter(m => m.id !== id);
+      setTeam(updated);
+      localStorage.setItem('sokinqalb_team_members', JSON.stringify(updated));
+    }
+  };
+
+  // --- 6. DAILY ROUTINE TASKS CRUD ---
+  const [tasks, setTasks] = useState(() => {
+    const saved = localStorage.getItem('sokinqalb_hourly_routine');
+    return saved ? JSON.parse(saved) : HOURLY_ROUTINE;
+  });
+  const [editingTask, setEditingTask] = useState(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [taskFormData, setTaskFormData] = useState({
+    time: '08:00',
+    title: '',
+    benefit: '',
+    description: ''
+  });
+
+  const handleOpenAddTask = () => {
+    setEditingTask(null);
+    setTaskFormData({
+      time: '08:00',
+      title: '',
+      benefit: 'Miyani tetiklashtiradi va energiya beradi.',
+      description: '3 daqiqalik chuqur nafas va minnatdorlik amaliyoti.'
+    });
+    setShowTaskModal(true);
+  };
+
+  const handleOpenEditTask = (task) => {
+    setEditingTask(task);
+    setTaskFormData({
+      time: task.time || '',
+      title: task.title || '',
+      benefit: task.benefit || '',
+      description: task.description || ''
+    });
+    setShowTaskModal(true);
+  };
+
+  const handleSaveTask = (e) => {
+    e.preventDefault();
+    if (!taskFormData.title.trim()) return;
+
+    let updatedTasks;
+    if (editingTask) {
+      updatedTasks = tasks.map(t => t.id === editingTask.id ? { ...t, ...taskFormData } : t);
+    } else {
+      const newTaskItem = {
+        id: `task_${Date.now()}`,
+        ...taskFormData,
+        category: 'morning'
+      };
+      updatedTasks = [...tasks, newTaskItem];
+    }
+
+    setTasks(updatedTasks);
+    localStorage.setItem('sokinqalb_hourly_routine', JSON.stringify(updatedTasks));
+    setShowTaskModal(false);
+  };
+
+  const handleDeleteTask = (id) => {
+    if (window.confirm("Ushbu kunlik vazifani o'chirmoqchimisiz?")) {
+      const updated = tasks.filter(t => t.id !== id);
+      setTasks(updated);
+      localStorage.setItem('sokinqalb_hourly_routine', JSON.stringify(updated));
+    }
+  };
+
+  // --- 7. RECEIPTS & STATS ---
   const [receipts, setReceipts] = useState(() => {
     const saved = localStorage.getItem('sokinqalb_receipts');
     return saved ? JSON.parse(saved) : [
@@ -73,480 +380,388 @@ export default function AdminPanelDashboard() {
     ];
   });
 
-  // AI Post generator state
-  const [generatedPost, setGeneratedPost] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  // Handlers for Team
-  const handleAddMember = (e) => {
-    e.preventDefault();
-    if (!newMember.name) return;
-    const updated = [
-      ...team,
-      {
-        id: Date.now(),
-        member_key: `doc_${Date.now()}`,
-        name: newMember.name,
-        title: newMember.title || "Klinik Psixoterapevt",
-        experience: newMember.experience || "5 yillik tajriba",
-        avatar_url: newMember.photo_url || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=500&auto=format&fit=crop&q=80",
-        directions: newMember.directions ? newMember.directions.split(',').map(s => s.trim()) : ["Klinik psixoterapiya"],
-        methodology: newMember.methodology || "Bag'ibekov Furqatning neyro-texnologiyalari va kapsulaterapiya amaliyoti.",
-        achievements: ["1,000+ muvaffaqiyatli seanslar"]
-      }
-    ];
-    setTeam(updated);
-    localStorage.setItem('sokinqalb_team_members', JSON.stringify(updated));
-    setShowAddMember(false);
-    setNewMember({ name: '', title: '', experience: '', directions: '', methodology: '', photo_url: '' });
-  };
-
-  const handleDeleteMember = (id) => {
-    if (!window.confirm("Rostdan ham ushbu mutaxassisni o'chirmoqchimisiz?")) return;
-    const updated = team.filter(m => m.id !== id);
-    setTeam(updated);
-    localStorage.setItem('sokinqalb_team_members', JSON.stringify(updated));
-  };
-
-  // Handlers for Courses
-  const handleAddCourse = (e) => {
-    e.preventDefault();
-    if (!newCourse.title) return;
-    const updated = [
-      ...courses,
-      {
-        id: Date.now(),
-        course_key: `c_${Date.now()}`,
-        title: newCourse.title,
-        price: newCourse.is_free ? "0 so'm (Bepul)" : newCourse.price || "100$",
-        is_free: newCourse.is_free,
-        description: newCourse.description || "Mualliflik psixoterapiya kursi",
-        lessons_count: parseInt(newCourse.lessons_count) || 5,
-        lessons: [
-          { title: "1-Dars: Nazariy asoslar va tana tahlili", duration: "18 daq" },
-          { title: "2-Dars: Amaliy nafas va mushak bo'shatish", duration: "25 daq" }
-        ]
-      }
-    ];
-    setCourses(updated);
-    localStorage.setItem('sokinqalb_courses_list', JSON.stringify(updated));
-    setShowAddCourse(false);
-    setNewCourse({ title: '', price: '', is_free: false, description: '', lessons_count: 5 });
-  };
-
-  const handleDeleteCourse = (id) => {
-    if (!window.confirm("Ushbu kursni o'chirmoqchimisiz?")) return;
-    const updated = courses.filter(c => c.id !== id);
-    setCourses(updated);
-    localStorage.setItem('sokinqalb_courses_list', JSON.stringify(updated));
-  };
-
-  // Handlers for Gifts
-  const handleAddGift = (e) => {
-    e.preventDefault();
-    if (!newGift.title) return;
-    const updated = [
-      ...gifts,
-      {
-        id: Date.now(),
-        gift_key: `g_${Date.now()}`,
-        title: newGift.title,
-        required_friends: parseInt(newGift.required_friends) || 5,
-        description: newGift.description || "Maxsus sovg'a"
-      }
-    ];
-    setGifts(updated);
-    localStorage.setItem('sokinqalb_referral_gifts', JSON.stringify(updated));
-    setShowAddGift(false);
-    setNewGift({ title: '', required_friends: 5, description: '' });
-  };
-
-  const handleDeleteGift = (id) => {
-    const updated = gifts.filter(g => g.id !== id);
-    setGifts(updated);
-    localStorage.setItem('sokinqalb_referral_gifts', JSON.stringify(updated));
-  };
-
-  // Receipts approve
   const handleApproveReceipt = (id) => {
     const updated = receipts.map(r => r.id === id ? { ...r, status: 'approved' } : r);
     setReceipts(updated);
     localStorage.setItem('sokinqalb_receipts', JSON.stringify(updated));
-    alert("✅ To'lov cheki tasdiqlandi va kurs foydalanuvchiga ochildi!");
   };
 
-  // AI Post generate
-  const handleGenerateAiPost = () => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      setGeneratedPost(
-        `🌿 **SOKIN QALB — ICHKI XOTIRJAMLIK SIRI** ✨\n\nKo'pincha inson o'zini doimiy asabiylik va charchoq ichida topadi. Buning sababi — miya neyronlarining ortiqcha yuklanishi va tana psixosomatik qisilishidir.\n\n💡 **Furqat Bag'ibekov tavsiyasi:**\n1. Kuniga 3 marta 4-7-8 Vagus nafas mashqini bajaring.\n2. Tana mushaklarini bo'shatish orqali ong osti bloklarini tozalang.\n\n👉 Bepul diagnostikadan o'tish uchun: https://sokinqalb.uz\n\n#SokinQalb #Psixoterapiya #FurqatBagibekov`
-      );
-      setIsGenerating(false);
-    }, 1000);
+  const handleDeleteReceipt = (id) => {
+    const updated = receipts.filter(r => r.id !== id);
+    setReceipts(updated);
+    localStorage.setItem('sokinqalb_receipts', JSON.stringify(updated));
   };
 
-  const getDoctorPhoto = (member) => {
-    if (member.member_key === 'furqat') return '/furqat_bagibekov.png';
-    if (member.member_key === 'dilfuza') return '/dilfuza_muminova.png';
-    if (member.member_key === 'temur') return '/temur_baydjanov.png';
-    return member.photo_url || member.avatar_url || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=500&auto=format&fit=crop&q=80";
-  };
-
-  return (
-    <div className="py-8 sm:py-16 max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 space-y-6 sm:space-y-10 w-full">
-      
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 sm:pb-6">
-        <div>
-          <div className="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full badge-indigo text-[10px] sm:text-xs font-bold mb-1.5">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Markaz Boshqaruv Paneli</span>
+  // --- PIN CODE AUTHENTICATION VIEW ---
+  if (!isAuthenticated) {
+    return (
+      <div className="py-12 sm:py-24 max-w-md mx-auto px-4 w-full animate-scale-up">
+        <div className="glass-panel p-6 sm:p-10 rounded-3xl border border-teal-500/40 shadow-2xl bg-slate-900/95 text-center space-y-6">
+          
+          <div className="w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-400/40 text-teal-300 flex items-center justify-center mx-auto shadow-lg shadow-teal-500/20">
+            <Lock className="w-8 h-8" />
           </div>
-          <h2 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Sokin Qalb Admin Dashboard
-          </h2>
+
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-white">Admin Panelga Kirish</h2>
+            <p className="text-xs text-slate-400">
+              Boshqaruv tizimiga kirish uchun maxsus 4 xonali PIN kodni kiriting
+            </p>
+          </div>
+
+          <form onSubmit={handlePinSubmit} className="space-y-5">
+            <div>
+              <input
+                type="password"
+                maxLength={4}
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value)}
+                placeholder="PIN Kod (0189)"
+                className="w-full text-center tracking-[0.6em] text-2xl font-mono py-3.5 px-4 rounded-2xl bg-slate-950/90 border border-teal-500/40 text-teal-300 placeholder-slate-600 focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20 transition-all"
+                autoFocus
+              />
+              {pinError && (
+                <p className="text-xs text-rose-400 font-bold mt-2 animate-bounce">
+                  ❌ Noto'g'ri PIN kod! Qaytadan urinib ko'ring.
+                </p>
+              )}
+            </div>
+
+            {/* Numeric Keypad for Quick Mobile / Desktop Access */}
+            <div className="grid grid-cols-3 gap-2.5 max-w-[280px] mx-auto">
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK'].map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    if (key === 'C') {
+                      setPinInput('');
+                    } else if (key === 'OK') {
+                      handlePinSubmit();
+                    } else {
+                      if (pinInput.length < 4) setPinInput(prev => prev + key);
+                    }
+                  }}
+                  className="p-3 rounded-xl bg-slate-800/80 hover:bg-teal-500/20 text-white font-bold text-base border border-slate-700/80 hover:border-teal-400/40 active:scale-95 transition-all cursor-pointer"
+                >
+                  {key}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-2xl font-bold text-sm text-white glowing-button flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/25 active:scale-95 cursor-pointer"
+            >
+              <KeyRound className="w-4 h-4" />
+              <span>Tizimga Kirish</span>
+            </button>
+          </form>
+
+        </div>
+      </div>
+    );
+  }
+
+  // --- AUTHENTICATED ADMIN DASHBOARD VIEW ---
+  return (
+    <div className="py-8 sm:py-16 max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 w-full animate-fade-in">
+      
+      {/* Top Header & Logout */}
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-teal-500/30 flex flex-wrap items-center justify-between gap-4 bg-slate-900/90 shadow-xl">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-teal-500/20 border border-teal-400/40 text-teal-300 flex items-center justify-center shadow-md shadow-teal-500/20">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
+          <div>
+            <h2 className="text-base sm:text-2xl font-black text-white">Sokin Qalb Boshqaruv Paneli</h2>
+            <p className="text-xs text-teal-300 font-semibold">Tizim administratori rejimi faol</p>
+          </div>
         </div>
 
-        {/* Tab switcher */}
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
-          {[
-            { id: 'stats', label: '📊 Statistika' },
-            { id: 'team', label: '👥 Jamoa' },
-            { id: 'courses', label: '📚 Kurslar' },
-            { id: 'gifts', label: '🎁 Sovg\'alar' },
-            { id: 'receipts', label: '💳 Cheklar' },
-            { id: 'aipost', label: '🤖 AI Post' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveAdminTab(tab.id)}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all ${
-                activeAdminTab === tab.id
-                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-md shadow-teal-500/20'
-                  : 'glass-card text-slate-300 hover:text-white border-white/[0.06]'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 flex items-center space-x-1.5 transition-colors cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Chiqish (Logout)</span>
+          </button>
         </div>
       </div>
 
-      {/* 1. STATS TAB */}
-      {activeAdminTab === 'stats' && (
-        <div className="space-y-6 sm:space-y-8 w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
-            
-            <div className="glass-panel p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-teal-500/20">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase">Jami Foydalanuvchilar</span>
-                <Users className="w-4 h-4 text-teal-400" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-white mt-2">15,420</div>
-              <div className="text-[10px] sm:text-xs text-teal-400 mt-1 font-semibold">+142 ta bugun</div>
-            </div>
-
-            <div className="glass-panel p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-cyan-500/20">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase">Klinik Diagnostikalar</span>
-                <TrendingUp className="w-4 h-4 text-cyan-400" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-white mt-2">8,930</div>
-              <div className="text-[10px] sm:text-xs text-cyan-400 mt-1 font-semibold">94% yakunlangan</div>
-            </div>
-
-            <div className="glass-panel p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-emerald-500/20">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase">Tasdiqlangan Savdolar</span>
-                <DollarSign className="w-4 h-4 text-emerald-400" />
-              </div>
-              <div className="text-xl sm:text-3xl font-black text-white mt-2 truncate">48,200,000 so'm</div>
-              <div className="text-[10px] sm:text-xs text-emerald-400 mt-1 font-semibold">320 ta xarid</div>
-            </div>
-
-            <div className="glass-panel p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-amber-500/20">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase">Xavfli Holatlar</span>
-                <AlertTriangle className="w-4 h-4 text-amber-400" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-amber-300 mt-2">18 ta</div>
-              <div className="text-[10px] sm:text-xs text-slate-400 mt-1 font-semibold">Tezkor konsultatsiya talab</div>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* 2. TEAM MANAGEMENT TAB */}
-      {activeAdminTab === 'team' && (
-        <div className="space-y-6 w-full">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg sm:text-xl font-bold text-white">Psixoterapevtlar Jamoasi ({team.length} ta)</h3>
+      {/* Admin Navigation Tabs */}
+      <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-2">
+        {[
+          { id: 'courses', label: `💎 Kurslar & Seanslar (${courses.length})`, icon: BookOpen },
+          { id: 'gifts', label: `🎁 Sovg'alar & Referral (${gifts.length})`, icon: Gift },
+          { id: 'team', label: `👨‍⚕️ Shifokorlar Jamoasi (${team.length})`, icon: Users },
+          { id: 'tasks', label: `⏰ Kunlik Reja (${tasks.length})`, icon: Clock },
+          { id: 'receipts', label: `💳 To'lov Cheklari (${receipts.length})`, icon: CreditCard },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeAdminTab === tab.id;
+          return (
             <button
-              onClick={() => setShowAddMember(true)}
-              className="px-3 py-2 rounded-xl text-xs font-bold text-white glowing-button flex items-center space-x-1.5 shadow-md shadow-teal-500/20"
+              key={tab.id}
+              onClick={() => setActiveAdminTab(tab.id)}
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap flex items-center space-x-2 transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 shadow-md shadow-teal-500/20'
+                  : 'glass-card text-slate-300 hover:text-white border-white/[0.08]'
+              }`}
             >
-              <Plus className="w-4 h-4" />
-              <span>Yangi Qo'shish</span>
+              <Icon className="w-4 h-4" />
+              <span>{tab.label}</span>
             </button>
-          </div>
+          );
+        })}
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {team.map((m) => (
-              <div key={m.id} className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/[0.08] space-y-3">
-                <div className="flex items-center space-x-3">
-                  <img 
-                    src={getDoctorPhoto(m)} 
-                    alt={m.name} 
-                    className="w-12 h-12 rounded-xl object-cover object-top border border-slate-700" 
-                  />
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-white text-sm sm:text-base truncate">{m.name}</h4>
-                    <p className="text-xs text-teal-300 truncate">{m.experience}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-300 line-clamp-2">{m.methodology}</p>
-                <div className="pt-2 border-t border-slate-800 flex justify-end">
-                  <button
-                    onClick={() => handleDeleteMember(m.id)}
-                    className="p-1.5 text-rose-400 hover:bg-rose-950/40 rounded-lg text-xs flex items-center space-x-1"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>O'chirish</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Add member modal */}
-          {showAddMember && (
-            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4">
-              <div className="glass-panel max-w-md w-full rounded-2xl p-5 space-y-4 border border-teal-500/30">
-                <h4 className="font-bold text-white text-base">Yangi Mutaxassis Qo'shish</h4>
-                <form onSubmit={handleAddMember} className="space-y-3">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ism va Familiya"
-                    value={newMember.name}
-                    onChange={e => setNewMember({ ...newMember, name: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Unvoni / Mutaxassisligi"
-                    value={newMember.title}
-                    onChange={e => setNewMember({ ...newMember, title: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Tajriba (masalan: 10 yillik tajriba)"
-                    value={newMember.experience}
-                    onChange={e => setNewMember({ ...newMember, experience: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"
-                  />
-                  <textarea
-                    rows="2"
-                    placeholder="Davolash metodikasi haqida..."
-                    value={newMember.methodology}
-                    onChange={e => setNewMember({ ...newMember, methodology: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs resize-none"
-                  />
-                  <div className="flex justify-end space-x-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowAddMember(false)}
-                      className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
-                    >
-                      Bekor qilish
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl font-bold text-xs text-white glowing-button"
-                    >
-                      Saqlash
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 3. COURSES MANAGEMENT TAB */}
+      {/* ========================================================================= */}
+      {/* 1. COURSES MANAGEMENT TAB */}
+      {/* ========================================================================= */}
       {activeAdminTab === 'courses' && (
-        <div className="space-y-6 w-full">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg sm:text-xl font-bold text-white">Kurslar va Seanslar ({courses.length} ta)</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">Kurslar va Seanslar Katalogi</h3>
+              <p className="text-xs text-slate-400">Saytdagi barcha 1$, 10$, 50$, 150$, 350$, 500$ lik kurs va seanslarni boshqaring</p>
+            </div>
             <button
-              onClick={() => setShowAddCourse(true)}
-              className="px-3 py-2 rounded-xl text-xs font-bold text-white glowing-button flex items-center space-x-1.5 shadow-md shadow-teal-500/20"
+              onClick={handleOpenAddCourse}
+              className="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-1.5 shadow-md cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Yangi Kurs Qo'shish</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {courses.map((c) => (
-              <div key={c.id} className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/[0.08] space-y-3">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full badge-teal">{c.price}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {courses.map((course) => (
+              <div key={course.id} className="glass-panel p-5 rounded-2xl border border-white/[0.08] flex flex-col justify-between space-y-4 bg-slate-900/90 shadow-lg">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full badge-teal">
+                      {course.badge || (course.is_free ? "🎁 BEPUL" : "💎 PULLIK")}
+                    </span>
+                    <span className="text-sm font-black text-teal-300">{course.price}</span>
+                  </div>
+                  <h4 className="font-bold text-white text-base leading-snug">{course.title}</h4>
+                  <p className="text-xs text-slate-400 line-clamp-3">{course.description}</p>
+                </div>
+
+                <div className="flex items-center justify-end space-x-2 border-t border-slate-800 pt-3">
                   <button
-                    onClick={() => handleDeleteCourse(c.id)}
-                    className="text-rose-400 hover:text-rose-300 p-1"
+                    onClick={() => handleOpenEditCourse(course)}
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-teal-500/20 text-teal-300 border border-slate-700 hover:border-teal-400 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Tahrirlash</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCourse(course.id)}
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 hover:border-rose-400 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>O'chirish</span>
                   </button>
                 </div>
-                <h4 className="font-bold text-white text-sm sm:text-base">{c.title}</h4>
-                <p className="text-xs text-slate-400 line-clamp-2">{c.description}</p>
               </div>
             ))}
           </div>
-
-          {/* Add course modal */}
-          {showAddCourse && (
-            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4">
-              <div className="glass-panel max-w-md w-full rounded-2xl p-5 space-y-4 border border-teal-500/30">
-                <h4 className="font-bold text-white text-base">Yangi Kurs / Seans Qo'shish</h4>
-                <form onSubmit={handleAddCourse} className="space-y-3">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Kurs yoki Seans Nomi"
-                    value={newCourse.title}
-                    onChange={e => setNewCourse({ ...newCourse, title: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Narxi (masalan: 100$ yoki Bepul)"
-                    value={newCourse.price}
-                    onChange={e => setNewCourse({ ...newCourse, price: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"
-                  />
-                  <textarea
-                    rows="2"
-                    placeholder="Kurs tavsifi..."
-                    value={newCourse.description}
-                    onChange={e => setNewCourse({ ...newCourse, description: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs resize-none"
-                  />
-                  <div className="flex justify-end space-x-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowAddCourse(false)}
-                      className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
-                    >
-                      Bekor qilish
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl font-bold text-xs text-white glowing-button"
-                    >
-                      Saqlash
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* 4. GIFTS MANAGEMENT TAB */}
+      {/* ========================================================================= */}
+      {/* 2. GIFTS & REFERRAL REWARDS TAB */}
+      {/* ========================================================================= */}
       {activeAdminTab === 'gifts' && (
-        <div className="space-y-6 w-full">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg sm:text-xl font-bold text-white">Referral Sovg'alari ({gifts.length} ta)</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">Sovg'alar & Taklif Tizimi Mukofotlari</h3>
+              <p className="text-xs text-slate-400">1 do'st taklif qilganda 1$ kurs ochiladi, 3 ta do'stda 10$ kurs, 5 ta do'stda 50$ kurs va yangi sovg'alar</p>
+            </div>
             <button
-              onClick={() => setShowAddGift(true)}
-              className="px-3 py-2 rounded-xl text-xs font-bold text-white glowing-button flex items-center space-x-1.5 shadow-md shadow-teal-500/20"
+              onClick={handleOpenAddGift}
+              className="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-1.5 shadow-md cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Yangi Sovg'a</span>
+              <span>Yangi Sovg'a Qo'shish</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {gifts.map((g) => (
-              <div key={g.id} className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/[0.08] space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-teal-300">
-                    {g.required_friends} ta do'st
-                  </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {gifts.map((gift) => (
+              <div key={gift.id} className="glass-panel p-5 rounded-2xl border border-teal-500/25 flex flex-col justify-between space-y-4 bg-slate-900/90 shadow-lg">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-950/80 border border-teal-500/40 text-teal-300">
+                      👥 {gift.required_friends} ta do'st taklifiga
+                    </span>
+                    <Gift className="w-4 h-4 text-teal-400" />
+                  </div>
+                  <h4 className="font-bold text-white text-base leading-snug">{gift.title}</h4>
+                  <p className="text-xs text-slate-300 leading-relaxed">{gift.description}</p>
+                  {gift.reward_course_key && (
+                    <div className="text-[11px] text-teal-400 font-mono">
+                      Bog'langan kurs kodi: {gift.reward_course_key}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end space-x-2 border-t border-slate-800 pt-3">
                   <button
-                    onClick={() => handleDeleteGift(g.id)}
-                    className="text-rose-400 hover:text-rose-300 p-1"
+                    onClick={() => handleOpenEditGift(gift)}
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-teal-500/20 text-teal-300 border border-slate-700 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Tahrirlash</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteGift(gift.id)}
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>O'chirish</span>
                   </button>
                 </div>
-                <h4 className="font-bold text-white text-sm sm:text-base">{g.title}</h4>
-                <p className="text-xs text-slate-400">{g.description}</p>
               </div>
             ))}
           </div>
-
-          {/* Add gift modal */}
-          {showAddGift && (
-            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4">
-              <div className="glass-panel max-w-md w-full rounded-2xl p-5 space-y-4 border border-teal-500/30">
-                <h4 className="font-bold text-white text-base">Yangi Sovg'a Qo'shish</h4>
-                <form onSubmit={handleAddGift} className="space-y-3">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Sovg'a Nomi"
-                    value={newGift.title}
-                    onChange={e => setNewGift({ ...newGift, title: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Kerakli do'stlar soni"
-                    value={newGift.required_friends}
-                    onChange={e => setNewGift({ ...newGift, required_friends: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"
-                  />
-                  <div className="flex justify-end space-x-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowAddGift(false)}
-                      className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
-                    >
-                      Bekor qilish
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl font-bold text-xs text-white glowing-button"
-                    >
-                      Saqlash
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
+      {/* ========================================================================= */}
+      {/* 3. TEAM MEMBERS TAB */}
+      {/* ========================================================================= */}
+      {activeAdminTab === 'team' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">Shifokorlar va Psixoterapevtlar</h3>
+              <p className="text-xs text-slate-400">Mutaxassislar ma'lumoti, tajribasi va qabul sohalarini boshqaring</p>
+            </div>
+            <button
+              onClick={handleOpenAddMember}
+              className="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-1.5 shadow-md cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Yangi Shifokor Qo'shish</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {team.map((member) => (
+              <div key={member.id} className="glass-panel p-5 rounded-2xl border border-white/[0.08] flex flex-col justify-between space-y-4 bg-slate-900/90 shadow-lg">
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <img 
+                      src={member.photo_url || member.avatar_url || "/furqat_hero.png"} 
+                      alt={member.name}
+                      className="w-12 h-12 rounded-xl object-cover border border-teal-500/30"
+                    />
+                    <div>
+                      <h4 className="font-bold text-white text-base">{member.name}</h4>
+                      <p className="text-xs text-teal-300 font-semibold">{member.title}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-400 font-mono">📅 {member.experience}</p>
+                  <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">{member.methodology}</p>
+                </div>
+
+                <div className="flex items-center justify-end space-x-2 border-t border-slate-800 pt-3">
+                  <button
+                    onClick={() => handleOpenEditMember(member)}
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-teal-500/20 text-teal-300 border border-slate-700 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Tahrirlash</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteMember(member.id)}
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>O'chirish</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 4. DAILY ROUTINE TASKS TAB */}
+      {/* ========================================================================= */}
+      {activeAdminTab === 'tasks' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">Kunlik Psixologik Intizom Vazifalari</h3>
+              <p className="text-xs text-slate-400">07:00, 09:30, 13:30 kabi kunlik amaliyotlar jadvalini tahrirlang</p>
+            </div>
+            <button
+              onClick={handleOpenAddTask}
+              className="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-1.5 shadow-md cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Yangi Vazifa Qo'shish</span>
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {tasks.map((task) => (
+              <div key={task.id} className="glass-panel p-4 sm:p-5 rounded-2xl border border-white/[0.08] flex items-center justify-between gap-4 bg-slate-900/90 shadow-md">
+                <div className="flex items-start space-x-3">
+                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-teal-300 border border-slate-700">
+                    {task.time}
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-white text-sm sm:text-base">{task.title}</h4>
+                    <p className="text-xs text-teal-200/90 font-medium mt-0.5">{task.benefit}</p>
+                    <p className="text-xs text-slate-400 mt-1">{task.description}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 flex-shrink-0">
+                  <button
+                    onClick={() => handleOpenEditTask(task)}
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-teal-500/20 text-teal-300 border border-slate-700 text-xs font-semibold cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 text-xs font-semibold cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
       {/* 5. RECEIPTS TAB */}
+      {/* ========================================================================= */}
       {activeAdminTab === 'receipts' && (
-        <div className="space-y-4 w-full">
-          <h3 className="text-lg sm:text-xl font-bold text-white">Kelib Tushgan To'lov Cheklari ({receipts.length} ta)</h3>
-          
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg sm:text-xl font-bold text-white">To'lov Cheklari & Buyurtmalar</h3>
+            <p className="text-xs text-slate-400">Mijozlar yuborgan to'lov cheklarini tasdiqlang va darslarga ruxsat bering</p>
+          </div>
+
           <div className="space-y-3">
             {receipts.map((r) => (
-              <div key={r.id} className="glass-panel p-4 sm:p-5 rounded-2xl border border-white/[0.08] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div key={r.id} className="glass-panel p-4 sm:p-5 rounded-2xl border border-white/[0.08] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/90 shadow-md">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h4 className="font-bold text-white text-sm sm:text-base">{r.userName}</h4>
+                    <h4 className="font-bold text-white text-base">{r.userName}</h4>
                     <span className="text-xs text-slate-400 font-mono">({r.phone})</span>
                   </div>
                   <p className="text-xs text-teal-300 mt-0.5">{r.course} — <b className="text-white">{r.amount}</b></p>
@@ -562,11 +777,17 @@ export default function AdminPanelDashboard() {
                   ) : (
                     <button
                       onClick={() => handleApproveReceipt(r.id)}
-                      className="px-4 py-2 rounded-xl font-bold text-xs text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-md shadow-emerald-500/20 active:scale-95"
+                      className="px-4 py-2 rounded-xl font-bold text-xs text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
                     >
                       Tasdiqlash & Kursni Ochish
                     </button>
                   )}
+                  <button
+                    onClick={() => handleDeleteReceipt(r.id)}
+                    className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             ))}
@@ -574,41 +795,343 @@ export default function AdminPanelDashboard() {
         </div>
       )}
 
-      {/* 6. AI POST GENERATOR TAB */}
-      {activeAdminTab === 'aipost' && (
-        <div className="space-y-4 max-w-3xl glass-panel p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/[0.08]">
-          <div className="space-y-1">
-            <span className="text-[10px] sm:text-xs font-bold text-teal-400 uppercase tracking-wider">Telegram & Instagram uchun</span>
-            <h3 className="text-lg sm:text-xl font-bold text-white">Avtomatlashtirilgan AI Psixologik Post Yaratuvchi</h3>
-            <p className="text-xs text-slate-400">Furqat Bag'ibekov klinik yondashuvi asosida tayyor professional postlarni 1 soniyada yarating.</p>
-          </div>
+      {/* ========================================================================= */}
+      {/* MODALS FOR ADD / EDIT */}
+      {/* ========================================================================= */}
 
-          <button
-            onClick={handleGenerateAiPost}
-            disabled={isGenerating}
-            className="px-5 py-3 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-2 shadow-md shadow-teal-500/20 active:scale-95 disabled:opacity-50"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>{isGenerating ? "Post yaratilmoqda..." : "Yangi Shifobaxsh Post Yaratish"}</span>
-          </button>
-
-          {generatedPost && (
-            <div className="space-y-3 pt-3">
-              <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs sm:text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
-                {generatedPost}
-              </div>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(generatedPost);
-                  alert("✅ Post matni nusxalandi!");
-                }}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-teal-300 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 flex items-center space-x-1.5"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                <span>Postni Nusxalash</span>
+      {/* COURSE MODAL */}
+      {showCourseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="glass-panel p-6 rounded-3xl border border-teal-500/30 max-w-lg w-full bg-slate-900/95 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h4 className="font-bold text-white text-base">
+                {editingCourse ? "Kursni Tahrirlash" : "Yangi Kurs Qo'shish"}
+              </h4>
+              <button onClick={() => setShowCourseModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
               </button>
             </div>
-          )}
+
+            <form onSubmit={handleSaveCourse} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Kurs Nomi:</label>
+                <input
+                  type="text"
+                  required
+                  value={courseFormData.title}
+                  onChange={e => setCourseFormData({ ...courseFormData, title: e.target.value })}
+                  placeholder="Masalan: Panik Atakani Yengish Kursi"
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Narxi (Matn):</label>
+                  <input
+                    type="text"
+                    required
+                    value={courseFormData.price}
+                    onChange={e => setCourseFormData({ ...courseFormData, price: e.target.value })}
+                    placeholder="10$ (~128 000 so'm)"
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Narxi USD ($):</label>
+                  <input
+                    type="number"
+                    value={courseFormData.price_usd}
+                    onChange={e => setCourseFormData({ ...courseFormData, price_usd: parseInt(e.target.value) || 0 })}
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Nishon (Badge):</label>
+                <input
+                  type="text"
+                  value={courseFormData.badge}
+                  onChange={e => setCourseFormData({ ...courseFormData, badge: e.target.value })}
+                  placeholder="1 Do'st = Bepul / Premium / VIP"
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Tavsif (Description):</label>
+                <textarea
+                  rows="3"
+                  value={courseFormData.description}
+                  onChange={e => setCourseFormData({ ...courseFormData, description: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCourseModal(false)}
+                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl font-bold text-white glowing-button cursor-pointer"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* GIFT MODAL */}
+      {showGiftModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="glass-panel p-6 rounded-3xl border border-teal-500/30 max-w-lg w-full bg-slate-900/95 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h4 className="font-bold text-white text-base">
+                {editingGift ? "Sovg'ani Tahrirlash" : "Yangi Sovg'a Qo'shish"}
+              </h4>
+              <button onClick={() => setShowGiftModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveGift} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Sovg'a Nomi:</label>
+                <input
+                  type="text"
+                  required
+                  value={giftFormData.title}
+                  onChange={e => setGiftFormData({ ...giftFormData, title: e.target.value })}
+                  placeholder="1$ Kurs / 10$ Kurs / Xitoy Kapsulasi Seansi"
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Kerakli do'stlar soni:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={giftFormData.required_friends}
+                    onChange={e => setGiftFormData({ ...giftFormData, required_friends: parseInt(e.target.value) || 1 })}
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Ochiladigan kurs kodi:</label>
+                  <input
+                    type="text"
+                    value={giftFormData.reward_course_key}
+                    onChange={e => setGiftFormData({ ...giftFormData, reward_course_key: e.target.value })}
+                    placeholder="1usd, 10usd, 50usd, session"
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Sovg'a Tavsifi:</label>
+                <textarea
+                  rows="3"
+                  value={giftFormData.description}
+                  onChange={e => setGiftFormData({ ...giftFormData, description: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowGiftModal(false)}
+                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl font-bold text-white glowing-button cursor-pointer"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* TEAM MEMBER MODAL */}
+      {showMemberModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="glass-panel p-6 rounded-3xl border border-teal-500/30 max-w-lg w-full bg-slate-900/95 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h4 className="font-bold text-white text-base">
+                {editingMember ? "Shifokor Ma'lumotlarini Tahrirlash" : "Yangi Shifokor Qo'shish"}
+              </h4>
+              <button onClick={() => setShowMemberModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMember} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Ism Sharif:</label>
+                <input
+                  type="text"
+                  required
+                  value={memberFormData.name}
+                  onChange={e => setMemberFormData({ ...memberFormData, name: e.target.value })}
+                  placeholder="Masalan: Bag'ibekov Furqat"
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Lavozim / Unvon:</label>
+                  <input
+                    type="text"
+                    value={memberFormData.title}
+                    onChange={e => setMemberFormData({ ...memberFormData, title: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Ish Tajribasi:</label>
+                  <input
+                    type="text"
+                    value={memberFormData.experience}
+                    onChange={e => setMemberFormData({ ...memberFormData, experience: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Fotosurat URL manzili:</label>
+                <input
+                  type="text"
+                  value={memberFormData.photo_url}
+                  onChange={e => setMemberFormData({ ...memberFormData, photo_url: e.target.value })}
+                  placeholder="/furqat_hero.png yoki online URL"
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Metodika va Yondashuv:</label>
+                <textarea
+                  rows="3"
+                  value={memberFormData.methodology}
+                  onChange={e => setMemberFormData({ ...memberFormData, methodology: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowMemberModal(false)}
+                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl font-bold text-white glowing-button cursor-pointer"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* TASK MODAL */}
+      {showTaskModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="glass-panel p-6 rounded-3xl border border-teal-500/30 max-w-lg w-full bg-slate-900/95 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h4 className="font-bold text-white text-base">
+                {editingTask ? "Vazifani Tahrirlash" : "Yangi Kunlik Vazifa"}
+              </h4>
+              <button onClick={() => setShowTaskModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveTask} className="space-y-3 text-xs">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Vaqti (HH:MM):</label>
+                  <input
+                    type="text"
+                    required
+                    value={taskFormData.time}
+                    onChange={e => setTaskFormData({ ...taskFormData, time: e.target.value })}
+                    placeholder="07:00"
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-slate-300 font-bold mb-1">Vazifa Sarlavhasi:</label>
+                  <input
+                    type="text"
+                    required
+                    value={taskFormData.title}
+                    onChange={e => setTaskFormData({ ...taskFormData, title: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Foydasi (Benefit):</label>
+                <input
+                  type="text"
+                  value={taskFormData.benefit}
+                  onChange={e => setTaskFormData({ ...taskFormData, benefit: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Ko'rsatma va Yo'riqnoma:</label>
+                <textarea
+                  rows="3"
+                  value={taskFormData.description}
+                  onChange={e => setTaskFormData({ ...taskFormData, description: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowTaskModal(false)}
+                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl font-bold text-white glowing-button cursor-pointer"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

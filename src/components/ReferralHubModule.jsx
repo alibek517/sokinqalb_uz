@@ -15,7 +15,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { REFERRAL_REWARDS } from '../data/initialData';
+import { INITIAL_GIFTS } from '../data/initialData';
 import FurqatDoctorPortrait from './FurqatDoctorPortrait';
 
 export default function ReferralHubModule({ setActiveTab }) {
@@ -23,6 +23,11 @@ export default function ReferralHubModule({ setActiveTab }) {
   const [friendsCount, setFriendsCount] = useState(() => {
     const saved = localStorage.getItem('sokinqalb_real_referral_count');
     return saved !== null ? parseInt(saved) : 0;
+  });
+
+  const [giftsList, setGiftsList] = useState(() => {
+    const saved = localStorage.getItem('sokinqalb_referral_gifts');
+    return saved ? JSON.parse(saved) : INITIAL_GIFTS;
   });
 
   const [copied, setCopied] = useState(false);
@@ -229,7 +234,7 @@ export default function ReferralHubModule({ setActiveTab }) {
           <h3 className="text-base sm:text-lg font-bold text-white">Sovg'alar Bosqichlari:</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {REFERRAL_REWARDS.map((reward) => {
+            {giftsList.map((reward) => {
               const isUnlocked = friendsCount >= reward.required_friends;
               
               return (
@@ -244,7 +249,7 @@ export default function ReferralHubModule({ setActiveTab }) {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-slate-700">
-                        {reward.required_friends} ta do'st
+                        👥 {reward.required_friends} ta do'st
                       </span>
                       {isUnlocked ? (
                         <CheckCircle2 className="w-5 h-5 text-emerald-400" />
@@ -269,11 +274,15 @@ export default function ReferralHubModule({ setActiveTab }) {
                           try {
                             confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
                           } catch (e) {}
-                          alert(`🎉 Tabriklaymiz! «${reward.title}» sovg'asi hisobingizga biriktirildi.`);
+                          if (reward.reward_course_key && setActiveTab) {
+                            setActiveTab('courses');
+                          } else {
+                            alert(`🎉 Tabriklaymiz! «${reward.title}» sovg'angiz ochildi.`);
+                          }
                         }}
-                        className="w-full py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 shadow-md shadow-emerald-500/20 active:scale-95"
+                        className="w-full py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
                       >
-                        🎁 Sovg'ani Olish
+                        🎁 Sovg'ani Olish & Ochish
                       </button>
                     ) : (
                       <div className="text-[11px] text-slate-400 text-center font-medium bg-slate-900/70 py-2 rounded-xl border border-white/[0.04]">
