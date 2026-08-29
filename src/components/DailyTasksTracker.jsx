@@ -12,7 +12,12 @@ import {
   Award,
   Save,
   Check,
-  Music
+  Music,
+  Sunrise,
+  Droplets,
+  Activity,
+  Footprints,
+  Moon
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { HOURLY_ROUTINE } from '../data/initialData';
@@ -70,20 +75,56 @@ export default function DailyTasksTracker() {
   const completedCount = tasks.filter(t => t.isDone).length;
   const progressPercent = Math.round((completedCount / tasks.length) * 100);
 
+  const getTaskIcon = (taskId) => {
+    switch (taskId) {
+      case 'task_1':
+        return (
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-slate-950 shadow-md shadow-orange-500/25 flex-shrink-0">
+            <Sunrise className="w-5 h-5" />
+          </div>
+        );
+      case 'task_2':
+        return (
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-slate-950 shadow-md shadow-cyan-500/25 flex-shrink-0">
+            <Droplets className="w-5 h-5" />
+          </div>
+        );
+      case 'task_3':
+        return (
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-slate-950 shadow-md shadow-emerald-500/25 flex-shrink-0">
+            <Activity className="w-5 h-5" />
+          </div>
+        );
+      case 'task_4':
+        return (
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-slate-950 shadow-md shadow-green-500/25 flex-shrink-0">
+            <Footprints className="w-5 h-5" />
+          </div>
+        );
+      case 'task_5':
+      default:
+        return (
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white shadow-md shadow-purple-500/25 flex-shrink-0">
+            <Moon className="w-5 h-5" />
+          </div>
+        );
+    }
+  };
+
   return (
-    <div className="py-8 sm:py-16 max-w-6xl mx-auto px-2.5 sm:px-6 lg:px-8 space-y-6 sm:space-y-10 w-full">
+    <div className="py-8 sm:py-16 max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 w-full">
       
-      {/* Module Header */}
+      {/* Header */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full badge-teal text-[10px] sm:text-xs font-bold uppercase tracking-wider">
           <Clock className="w-3.5 h-3.5 text-teal-400" />
-          <span>Soatlik Reabilitatsiya</span>
+          <span>Klinik Reabilitatsiya Tartibi</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Kunlik Reja va Emotsional Check-in
+          Kunlik Psixologik Intizom & Reja
         </h2>
         <p className="text-slate-400 text-xs sm:text-sm max-w-2xl mx-auto">
-          Kun davomida xotirjamlikni saqlash va tana psixosomatik qisilishlarini bo'shatish bo'yicha maxsus kun tartibi
+          Bag'ibekov Furqatning kun davomida asab tizimini bosqichma-bosqich tinchlantirish va tiklash jadvali
         </p>
       </div>
 
@@ -132,23 +173,13 @@ export default function DailyTasksTracker() {
                     : 'border-white/[0.06] hover:border-teal-500/30 text-white'
                 }`}
               >
-                {/* Custom Checkbox */}
-                <button
-                  type="button"
-                  className={`mt-0.5 w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl flex items-center justify-center border transition-colors flex-shrink-0 ${
-                    task.isDone
-                      ? 'bg-teal-400 border-teal-400 text-slate-950 font-bold'
-                      : 'border-slate-600 hover:border-teal-400 text-transparent'
-                  }`}
-                  aria-label="Vazifani belgilash"
-                >
-                  <Check className="w-4 h-4" />
-                </button>
+                {/* Flaticon-style 3D Task Icon */}
+                {getTaskIcon(task.id)}
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 flex-wrap mb-1">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold font-mono bg-slate-800/90 text-teal-300 border border-slate-700">
-                      ⏰ {task.time}
+                      {task.time}
                     </span>
                     <span className="text-[10px] sm:text-xs font-semibold text-slate-400">
                       {task.benefit}
@@ -165,6 +196,19 @@ export default function DailyTasksTracker() {
                     {task.description}
                   </p>
                 </div>
+
+                {/* Custom Checkbox */}
+                <button
+                  type="button"
+                  className={`mt-0.5 w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl flex items-center justify-center border transition-colors flex-shrink-0 ${
+                    task.isDone
+                      ? 'bg-teal-400 border-teal-400 text-slate-950 font-bold'
+                      : 'border-slate-600 hover:border-teal-400 text-transparent'
+                  }`}
+                  aria-label="Vazifani belgilash"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
               </div>
             ))}
           </div>
