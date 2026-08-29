@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ShieldCheck, 
   Users, 
@@ -28,9 +28,107 @@ import {
   Flame,
   ArrowRight,
   Globe,
-  Radio
+  Radio,
+  Camera,
+  Image as ImageIcon
 } from 'lucide-react';
 import { INITIAL_TEAM, INITIAL_COURSES, INITIAL_GIFTS, HOURLY_ROUTINE } from '../data/initialData';
+
+// Image Upload Picker from Gallery or Real Camera
+const ImageUploadPicker = ({ currentImage, onImageSelected, label = "Shifokor Fotosurati" }) => {
+  const galleryRef = useRef(null);
+  const cameraRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onImageSelected(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  return (
+    <div className="space-y-2 pt-1">
+      <label className="block text-slate-300 font-bold text-xs">
+        {label}:
+      </label>
+
+      {/* Hidden File Inputs for Gallery & Camera */}
+      <input 
+        type="file" 
+        accept="image/*" 
+        ref={galleryRef} 
+        onChange={handleFileChange} 
+        className="hidden" 
+      />
+      <input 
+        type="file" 
+        accept="image/*" 
+        capture="environment" 
+        ref={cameraRef} 
+        onChange={handleFileChange} 
+        className="hidden" 
+      />
+
+      {/* Upload Action Buttons */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => galleryRef.current?.click()}
+          className="p-2.5 rounded-xl bg-slate-800/90 hover:bg-teal-500/20 border border-slate-700 hover:border-teal-400 text-teal-300 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all cursor-pointer active:scale-95"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          <span>🖼️ Galereyadan Yuklash</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => cameraRef.current?.click()}
+          className="p-2.5 rounded-xl bg-slate-800/90 hover:bg-cyan-500/20 border border-slate-700 hover:border-cyan-400 text-cyan-300 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all cursor-pointer active:scale-95"
+        >
+          <Camera className="w-3.5 h-3.5" />
+          <span>📸 Kameradan Olish</span>
+        </button>
+      </div>
+
+      {/* Selected Image Preview */}
+      {currentImage ? (
+        <div className="p-2.5 rounded-xl bg-slate-950/80 border border-teal-500/30 flex items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <img 
+              src={currentImage} 
+              alt="Tanlangan rasm" 
+              className="w-12 h-12 rounded-lg object-cover border border-teal-400/40 flex-shrink-0"
+            />
+            <div className="min-w-0">
+              <span className="text-xs text-emerald-300 font-bold flex items-center space-x-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Rasm biriktirildi</span>
+              </span>
+              <span className="text-[10px] text-slate-400 truncate block">Haqiqiy fotosurat saqlandi</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onImageSelected('')}
+            className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-400 border border-slate-700 text-xs font-semibold cursor-pointer"
+            title="Rasmni o'chirish"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ) : (
+        <div className="text-[10px] text-slate-500 italic text-center py-1">
+          Galereyadan fayl tanlang yoki kamerani yoqing
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Platform indicator badge
 const PlatformBadge = ({ platform = 'both' }) => {
@@ -1115,16 +1213,12 @@ export default function AdminPanelDashboard() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">Fotosurat URL manzili:</label>
-                <input
-                  type="text"
-                  value={memberFormData.photo_url}
-                  onChange={e => setMemberFormData({ ...memberFormData, photo_url: e.target.value })}
-                  placeholder="/furqat_hero.png yoki online URL"
-                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
-                />
-              </div>
+              {/* Doctor Photo Picker (Gallery & Real Camera) */}
+              <ImageUploadPicker
+                label="Shifokor Fotosurati (Galereya yoki Real Kamera)"
+                currentImage={memberFormData.photo_url}
+                onImageSelected={(imgData) => setMemberFormData({ ...memberFormData, photo_url: imgData })}
+              />
 
               <div>
                 <label className="block text-slate-300 font-bold mb-1">Metodika va Yondashuv:</label>
