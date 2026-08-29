@@ -104,12 +104,14 @@ function FormattedMessage({ text, isUser }) {
   );
 }
 
+import { askAIChatAssistant } from '../services/geminiService';
+
 export default function AIChatAssistant({ onOpenConsultModal }) {
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'bot',
-      text: "Assalomu alaykum! Men Sokin Qalb markazining virtual psixologik yordamchisiman. Sizni qiynayotgan xavotir, uyqusizlik, tana qisilishlari, munosabatlar yoki Bag'ibekov Furqatning davolash apparatlari (Xitoy kapsulasi, Fransiya lampasi) bo'yicha qanday savolingiz bor?",
+      text: "Assalomu alaykum! Men Sokin Qalb markazining Gemini AI asosidagi virtual psixologik yordamchisiman. Sizni qiynayotgan xavotir, asabiylik, uyqusizlik, tana qisilishlari, munosabatlar yoki Bag'ibekov Furqatning davolash metodikasi bo'yicha qanday savolingiz bor?",
       time: "Hozir"
     }
   ]);
@@ -180,11 +182,10 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
       return "Assalomu alaykum! Sizga yordam berishdan mamnunman. Qanday ruhiy yoki psixosomatik holat sizni bezovta qilmoqda? Savolingizni yozing, birgalikda tahlil qilamiz.";
     }
 
-    // 11. Standart tahliliy javob
-    return `Savolingiz uchun tashakkur! «${query}» mavzusi insonning ong osti dasturlari va tana xotirjamligi bilan uzviy bog'liq.\n\nBag'ibekov Furqatning 12 yillik klinik metodikasiga ko'ra, har qanday ruhiy taranglik, vahima yoki munosabatlardagi inqirozni dori-darmonsiz, tizimli psixoterapiya va zamonaviy apparatlar (Xitoy kapsulasi, Fransiya lampasi) yordamida to'liq davolash mumkin.\n\nAniqroq ma'lumot olish uchun savolingizni chuqurroq yozishingiz yoki shaxsiy qabulga yozilishingiz mumkin.`;
+    return `Savolingiz uchun tashakkur! «${query}» holati insonning ong osti dasturlari va asab tizimi bilan uzviy bog'liq.\n\nBag'ibekov Furqat metodikasiga ko'ra, har qanday ruhiy taranglik va asabiylikni dori-darmonsiz, chuqur ong osti relaksatsiyasi va maxsus apparatlar (Xitoy kapsulasi, Fransiya lampasi) yordamida to'liq davolash mumkin.\n\nSizni aynan nima ko'proq asabiylashtirmoqda yoki qanday holat bezovta qilmoqda? Yozing, batafsil yechimini ko'rib chiqamiz.`;
   };
 
-  const handleSendMessage = (textToSend = inputText) => {
+  const handleSendMessage = async (textToSend = inputText) => {
     if (!textToSend.trim()) return;
 
     const userMsg = {
@@ -194,12 +195,14 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const currentHistory = [...messages, userMsg];
+    setMessages(currentHistory);
     setInputText('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const botReply = generateAIResponse(textToSend);
+    try {
+      // Live Google Gemini AI Call
+      const botReply = await askAIChatAssistant(textToSend, currentHistory);
 
       const botMsg = {
         id: Date.now() + 1,
@@ -209,8 +212,19 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
       };
 
       setMessages(prev => [...prev, botMsg]);
+    } catch (err) {
+      console.warn("Gemini AI fallback triggered:", err);
+      const fallbackReply = generateAIResponse(textToSend);
+      const botMsg = {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: fallbackReply,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, botMsg]);
+    } finally {
       setIsTyping(false);
-    }, 700);
+    }
   };
 
   const quickTopics = [

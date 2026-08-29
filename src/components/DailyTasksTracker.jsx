@@ -23,6 +23,8 @@ import confetti from 'canvas-confetti';
 import { HOURLY_ROUTINE } from '../data/initialData';
 import FurqatDoctorPortrait from './FurqatDoctorPortrait';
 
+import { analyzeDailyCheckinWithGemini } from '../services/geminiService';
+
 export default function DailyTasksTracker() {
   const [tasks, setTasks] = useState(() => {
     const saved = localStorage.getItem('sokinqalb_daily_tasks');
@@ -30,13 +32,11 @@ export default function DailyTasksTracker() {
   });
 
   const [moodScore, setMoodScore] = useState(() => {
-    return parseInt(localStorage.getItem('sokinqalb_mood_score') || '8');
+    return parseInt(localStorage.getItem('sokinqalb_mood_score') || '7');
   });
-
   const [stressScore, setStressScore] = useState(() => {
-    return parseInt(localStorage.getItem('sokinqalb_stress_score') || '3');
+    return parseInt(localStorage.getItem('sokinqalb_stress_score') || '4');
   });
-
   const [dailyNote, setDailyNote] = useState(() => {
     return localStorage.getItem('sokinqalb_daily_note') || '';
   });
@@ -44,6 +44,10 @@ export default function DailyTasksTracker() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [audioTimer, setAudioTimer] = useState(180); // 3 minutes
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [geminiFeedback, setGeminiFeedback] = useState(() => {
+    return localStorage.getItem('sokinqalb_gemini_daily_feedback') || '';
+  });
+  const [isAnalyzingCheckin, setIsAnalyzingCheckin] = useState(false);
 
   const audioCtxRef = useRef(null);
   const oscillatorsRef = useRef([]);
@@ -164,12 +168,29 @@ export default function DailyTasksTracker() {
     setTasks(updated);
   };
 
-  const handleSaveCheckin = () => {
+  const handleSaveCheckin = async () => {
     localStorage.setItem('sokinqalb_mood_score', moodScore.toString());
     localStorage.setItem('sokinqalb_stress_score', stressScore.toString());
     localStorage.setItem('sokinqalb_daily_note', dailyNote);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
+
+    setIsAnalyzingCheckin(true);
+    try {
+      const feedback = await analyzeDailyCheckinWithGemini(
+        moodScore,
+        stressScore,
+        dailyNote,
+        completedCount,
+        tasks.length
+      );
+      setGeminiFeedback(feedback);
+      localStorage.setItem('sokinqalb_gemini_daily_feedback', feedback);
+    } catch (err) {
+      console.warn("Gemini checkin analysis failed:", err);
+    } finally {
+      setIsAnalyzingCheckin(false);
+    }
   };
 
   const completedCount = tasks.filter(t => t.isDone).length;
@@ -381,9 +402,15 @@ export default function DailyTasksTracker() {
 
             <button
               onClick={handleSaveCheckin}
-              className="w-full py-3 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center justify-center space-x-1.5 shadow-md shadow-teal-500/20 active:scale-95"
+              disabled={isAnalyzingCheckin}
+              className="w-full py-3 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center justify-center space-x-1.5 shadow-md shadow-teal-500/20 active:scale-95 cursor-pointer disabled:opacity-50"
             >
-              {saveSuccess ? (
+              {isAnalyzingCheckin ? (
+                <>
+                  <Sparkles className="w-4 h-4 animate-spin text-teal-200" />
+                  <span>Gemini AI Tahlil Qilmoqda...</span>
+                </>
+              ) : saveSuccess ? (
                 <>
                   <Check className="w-4 h-4 text-emerald-300" />
                   <span>Muvaffaqiyatli Saqlandi!</span>
@@ -391,10 +418,23 @@ export default function DailyTasksTracker() {
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Holatni Saqlash</span>
+                  <span>Holatni Saqlash & AI Tahlil</span>
                 </>
               )}
             </button>
+
+            {/* Gemini AI Daily Feedback Box */}
+            {geminiFeedback && (
+              <div className="p-3.5 sm:p-4 rounded-xl bg-slate-950/80 border border-teal-500/30 space-y-2 animate-fade-in shadow-inner">
+                <div className="flex items-center space-x-2 text-teal-300 font-bold text-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                  <span>Gemini AI Psixoterapevt Tavsiyasi:</span>
+                </div>
+                <div className="text-slate-200 text-[11px] sm:text-xs leading-relaxed whitespace-pre-wrap">
+                  {geminiFeedback}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Audio Player Widget — Real 432Hz Harmonic Synthesizer */}

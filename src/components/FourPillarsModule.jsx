@@ -9,10 +9,13 @@ import {
   Activity, 
   ArrowRight,
   TrendingUp,
-  Award
+  Award,
+  Bot,
+  RefreshCw
 } from 'lucide-react';
 import { FOUR_PILLARS } from '../data/initialData';
 import FurqatDoctorPortrait from './FurqatDoctorPortrait';
+import { analyzeFourPillarsWithGemini } from '../services/geminiService';
 
 export default function FourPillarsModule({ setActiveTab }) {
   const [pillarScores, setPillarScores] = useState(() => {
@@ -24,6 +27,11 @@ export default function FourPillarsModule({ setActiveTab }) {
       relationships: 8
     };
   });
+
+  const [geminiAnalysis, setGeminiAnalysis] = useState(() => {
+    return localStorage.getItem('sokinqalb_gemini_pillars_analysis') || '';
+  });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleScoreChange = (key, val) => {
     const updated = {
@@ -40,9 +48,21 @@ export default function FourPillarsModule({ setActiveTab }) {
     return Math.round((sum / (values.length * 10)) * 100);
   };
 
+  const handleRunGeminiAnalysis = async () => {
+    setIsAnalyzing(true);
+    try {
+      const result = await analyzeFourPillarsWithGemini(pillarScores);
+      setGeminiAnalysis(result);
+      localStorage.setItem('sokinqalb_gemini_pillars_analysis', result);
+    } catch (err) {
+      console.warn("Gemini 4 pillars analysis failed:", err);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const balanceScore = calculateOverallBalance();
 
-  // Find lowest pillar
   const pillarEntries = Object.entries(pillarScores);
   pillarEntries.sort((a, b) => a[1] - b[1]);
   const weakestPillarKey = pillarEntries[0][0];
@@ -92,7 +112,7 @@ export default function FourPillarsModule({ setActiveTab }) {
       </div>
 
       {/* Balance Index Hero Gauge */}
-      <div className="glass-panel p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+      <div className="glass-panel p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl bg-slate-900/90">
         <div className="space-y-1.5 text-center md:text-left">
           <span className="text-[10px] sm:text-xs font-bold text-teal-400 uppercase tracking-wider">
             Umumiy Hayotiy Balans Indeksi
@@ -112,7 +132,7 @@ export default function FourPillarsModule({ setActiveTab }) {
             </div>
             <div className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase mt-0.5">Balans Ko'rsatkichi</div>
           </div>
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-teal-500/10 border border-teal-400/30 flex items-center justify-center text-teal-300">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-teal-500/10 border border-teal-400/30 flex items-center justify-center text-teal-300 shadow-lg shadow-teal-500/15">
             <Award className="w-7 h-7 sm:w-8 sm:h-8" />
           </div>
         </div>
@@ -126,7 +146,7 @@ export default function FourPillarsModule({ setActiveTab }) {
           const Icon = config.icon;
 
           return (
-            <div key={key} className="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/[0.06] space-y-4">
+            <div key={key} className="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/[0.06] space-y-4 bg-slate-900/80">
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -177,8 +197,51 @@ export default function FourPillarsModule({ setActiveTab }) {
         })}
       </div>
 
+      {/* Gemini AI Live 4-Pillars Analysis Trigger & Card */}
+      <div className="glass-panel p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-teal-500/30 shadow-2xl bg-slate-900/90 space-y-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2 text-teal-300 font-bold text-sm sm:text-base">
+              <Bot className="w-5 h-5 text-teal-400" />
+              <span>Google Gemini AI 4 Ustun Balans Tahlili</span>
+            </div>
+            <p className="text-xs text-slate-400">
+              4 ta sohangiz ko'rsatkichlari bo'yicha sun'iy intellekt orqali to'liq klinik xulosa va yo'l xaritasini oling
+            </p>
+          </div>
+
+          <button
+            onClick={handleRunGeminiAnalysis}
+            disabled={isAnalyzing}
+            className="py-3 px-5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-2 shadow-lg shadow-teal-500/25 active:scale-95 cursor-pointer disabled:opacity-50 flex-shrink-0"
+          >
+            {isAnalyzing ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-teal-200" />
+                <span>Gemini AI Tahlil Qilmoqda...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>Gemini AI Bilan Tahlil Qilish</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {geminiAnalysis ? (
+          <div className="p-4 sm:p-6 rounded-2xl bg-slate-950/80 border border-teal-500/25 text-slate-200 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap animate-fade-in shadow-inner">
+            {geminiAnalysis}
+          </div>
+        ) : (
+          <div className="p-4 rounded-xl bg-slate-950/40 border border-white/[0.05] text-slate-400 text-xs text-center">
+            Tugmani bosing — Google Gemini AI 4 ustuningiz mutanosibligini va ularning bir-biriga ta'sirini to'liq tahlil qilib beradi.
+          </div>
+        )}
+      </div>
+
       {/* Tailored AI Clinical Advice with Custom Furqat Pillars Portrait on Left (Chap Tarafda) */}
-      <div className="glass-panel p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-teal-500/30 shadow-2xl">
+      <div className="glass-panel p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-teal-500/30 shadow-2xl bg-slate-900/90">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
           
           {/* Left: Custom Pillars Portrait */}
@@ -205,14 +268,14 @@ export default function FourPillarsModule({ setActiveTab }) {
             <div className="pt-2 flex flex-wrap gap-3">
               <button
                 onClick={() => setActiveTab('team')}
-                className="px-5 py-3 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-2 shadow-lg shadow-teal-500/20 active:scale-95"
+                className="px-5 py-3 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-2 shadow-lg shadow-teal-500/20 active:scale-95 cursor-pointer"
               >
                 <span>Mutaxassis Qabuliga Yozilish</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setActiveTab('courses')}
-                className="px-5 py-3 rounded-xl font-bold text-xs sm:text-sm text-slate-200 glass-card hover:text-white flex items-center space-x-2 active:scale-95"
+                className="px-5 py-3 rounded-xl font-bold text-xs sm:text-sm text-slate-200 glass-card hover:text-white flex items-center space-x-2 active:scale-95 cursor-pointer"
               >
                 <span>Shifobaxsh Kurslarni Ko'rish</span>
               </button>
