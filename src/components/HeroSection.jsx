@@ -14,6 +14,7 @@ import {
   HeartHandshake
 } from 'lucide-react';
 import FurqatDoctorPortrait from './FurqatDoctorPortrait';
+import PsychologyInsightsGallery from './PsychologyInsightsGallery';
 
 export default function HeroSection({ setActiveTab, onOpenConsultModal }) {
   return (
@@ -186,6 +187,12 @@ export default function HeroSection({ setActiveTab, onOpenConsultModal }) {
             </div>
           </div>
         </div>
+
+        {/* Psychology Insights & Visual Infographics Gallery */}
+        <PsychologyInsightsGallery 
+          onOpenConsultModal={onOpenConsultModal} 
+          setActiveTab={setActiveTab} 
+        />
 
       </div>
     </div>
