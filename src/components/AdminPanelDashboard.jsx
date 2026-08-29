@@ -787,19 +787,27 @@ export default function AdminPanelDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {courses.map((course) => (
-              <div key={course.id} className="glass-panel p-5 rounded-2xl border border-white/[0.08] flex flex-col justify-between space-y-4 bg-slate-900/90 shadow-lg">
-                <div className="space-y-2">
+              <div key={course.id} className="glass-panel p-4 sm:p-5 rounded-2xl border border-white/[0.08] flex flex-col justify-between space-y-4 bg-slate-900/90 shadow-lg hover:border-teal-500/30 transition-all">
+                <div className="space-y-3 min-w-0">
                   <div className="flex items-center justify-between flex-wrap gap-1.5">
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full badge-teal">
                       {course.badge || (course.is_free ? "🎁 BEPUL" : "💎 PULLIK")}
                     </span>
                     <PlatformBadge platform={course.target_platform} />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-white text-base leading-snug">{course.title}</h4>
-                    <span className="text-sm font-black text-teal-300 ml-2 whitespace-nowrap">{course.price}</span>
+
+                  <div className="space-y-1.5 min-w-0">
+                    <h4 className="font-bold text-white text-sm sm:text-base leading-snug break-words">
+                      {course.title}
+                    </h4>
+                    <div className="inline-flex items-center px-2.5 py-1 rounded-lg bg-teal-950/80 border border-teal-500/40 text-teal-300 font-black text-xs sm:text-sm shadow-sm break-all">
+                      {course.price}
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-400 line-clamp-3">{course.description}</p>
+
+                  <p className="text-xs text-slate-300 leading-relaxed break-words line-clamp-3">
+                    {course.description}
+                  </p>
                 </div>
 
                 <div className="flex items-center justify-end space-x-2 border-t border-slate-800 pt-3">
