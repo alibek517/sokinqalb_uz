@@ -211,10 +211,28 @@
   animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
   display: none;
 }
-.no-scrollbar {
+.no-scrollbar,
+.scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Ultra Mobile Responsive Down to 250px */
+@media (max-width: 360px) {
+  html, body {
+    font-size: 13px;
+  }
+  .glass-panel {
+    padding: 0.75rem !important;
+  }
+  .glass-card {
+    padding: 0.65rem !important;
+  }
+  button, input, textarea {
+    font-size: 11px !important;
+  }
 }

@@ -660,32 +660,41 @@ export default function AdminPanelDashboard() {
         </div>
       </div>
 
-      {/* Admin Navigation Tabs */}
-      <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-2">
-        {[
-          { id: 'courses', label: `💎 Kurslar & Seanslar (${courses.length})`, icon: BookOpen },
-          { id: 'gifts', label: `🎁 Sovg'alar & Referral (${gifts.length})`, icon: Gift },
-          { id: 'team', label: `👨‍⚕️ Shifokorlar Jamoasi (${team.length})`, icon: Users },
-          { id: 'tasks', label: `⏰ Kunlik Reja (${tasks.length})`, icon: Clock },
-          { id: 'receipts', label: `💳 To'lov Cheklari (${receipts.length})`, icon: CreditCard },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeAdminTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveAdminTab(tab.id)}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap flex items-center space-x-2 transition-all cursor-pointer ${
-                isActive
-                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 shadow-md shadow-teal-500/20'
-                  : 'glass-card text-slate-300 hover:text-white border-white/[0.08]'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+      {/* Admin Navigation Tabs - 100% Mobile Responsive Horizontal Scroll */}
+      <div className="w-full max-w-full overflow-hidden">
+        <div className="flex items-center space-x-2 overflow-x-auto scrollbar-none pb-2.5 w-full max-w-full touch-pan-x px-0.5">
+          {[
+            { id: 'courses', label: 'Kurslar & Seanslar', count: courses.length, icon: BookOpen, emoji: '💎' },
+            { id: 'gifts', label: 'Sovg\'alar & Referral', count: gifts.length, icon: Gift, emoji: '🎁' },
+            { id: 'team', label: 'Shifokorlar', count: team.length, icon: Users, emoji: '👨‍⚕️' },
+            { id: 'tasks', label: 'Kunlik Reja', count: tasks.length, icon: Clock, emoji: '⏰' },
+            { id: 'receipts', label: 'To\'lov Cheklari', count: receipts.length, icon: CreditCard, emoji: '💳' },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeAdminTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveAdminTab(tab.id)}
+                className={`flex-shrink-0 whitespace-nowrap px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 sm:space-x-2 transition-all cursor-pointer select-none ${
+                  isActive
+                    ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 shadow-md shadow-teal-500/25 ring-1 ring-teal-300/50'
+                    : 'glass-card text-slate-300 hover:text-white border-white/[0.08] hover:bg-slate-800/80'
+                }`}
+              >
+                <span>{tab.emoji}</span>
+                <span className="hidden xs:inline">{tab.label}</span>
+                <span className="xs:hidden">{tab.label.split(' ')[0]}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                  isActive ? 'bg-slate-950/20 text-slate-950 font-black' : 'bg-slate-800 text-teal-300'
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ========================================================================= */}

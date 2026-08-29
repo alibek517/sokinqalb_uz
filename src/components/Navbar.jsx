@@ -38,23 +38,23 @@ export default function Navbar({ activeTab, setActiveTab, onOpenConsultModal }) 
           {/* Brand Logo & Title */}
           <div 
             onClick={() => setActiveTab('home')}
-            className="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer group flex-shrink-0"
+            className="flex items-center space-x-2 sm:space-x-3 cursor-pointer group flex-shrink min-w-0 overflow-hidden"
           >
             {/* Logo Container */}
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white p-1 shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-all flex-shrink-0 overflow-hidden border border-teal-400/40 flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-white p-0.5 sm:p-1 shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-all flex-shrink-0 overflow-hidden border border-teal-400/40 flex items-center justify-center">
               <img src="/logo.jpg" alt="Sokin Qalb Logo" className="w-full h-full object-contain rounded-lg" />
             </div>
             
-            <div className="min-w-0">
+            <div className="min-w-0 overflow-hidden">
               <div className="flex items-center space-x-1.5">
-                <span className="text-lg sm:text-xl font-black tracking-tight bg-gradient-to-r from-teal-200 via-cyan-100 to-indigo-200 bg-clip-text text-transparent font-sans whitespace-nowrap">
+                <span className="text-sm sm:text-lg md:text-xl font-black tracking-tight bg-gradient-to-r from-teal-200 via-cyan-100 to-indigo-200 bg-clip-text text-transparent font-sans truncate">
                   SOKIN QALB
                 </span>
                 <span className="hidden md:inline text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 font-bold uppercase tracking-wider whitespace-nowrap">
                   Transformatsiya Markazi
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-teal-200/90 font-medium tracking-wide whitespace-nowrap">
+              <p className="text-[9px] sm:text-[10px] md:text-[11px] text-teal-200/90 font-medium tracking-wide truncate">
                 Sog'lom Ong • Sog'lom Hayot
               </p>
             </div>
