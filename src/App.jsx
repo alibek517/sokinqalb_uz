@@ -71,8 +71,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-100 flex flex-col selection:bg-teal-500/30 selection:text-teal-200">
+    <div className="min-h-screen bg-transparent text-slate-100 flex flex-col selection:bg-teal-500/30 selection:text-teal-200 relative overflow-x-hidden">
       
+      {/* Dynamic Animated Ambient Background Orbs (Gamma Style) */}
+      <div className="fixed top-12 left-1/4 w-[400px] sm:w-[650px] h-[400px] sm:h-[650px] bg-gradient-to-tr from-teal-500/15 via-cyan-500/10 to-transparent blur-[140px] pointer-events-none rounded-full animate-pulse-glow -z-10" />
+      <div className="fixed top-1/3 right-10 w-[350px] sm:w-[550px] h-[350px] sm:h-[550px] bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent blur-[160px] pointer-events-none rounded-full animate-pulse-glow -z-10" style={{ animationDelay: '2s' }} />
+      <div className="fixed bottom-20 left-10 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-gradient-to-tr from-emerald-500/10 via-teal-500/10 to-transparent blur-[150px] pointer-events-none rounded-full animate-pulse-glow -z-10" style={{ animationDelay: '3.5s' }} />
+
       {/* Top Fixed Header */}
       <Navbar 
         activeTab={activeTab} 
@@ -80,8 +85,8 @@ export default function App() {
         onOpenConsultModal={handleOpenConsult}
       />
 
-      {/* Main Content Viewport */}
-      <main className="flex-1 w-full animate-fade-in">
+      {/* Main Content Viewport with Gamma-style Slide-up Smooth Entrance */}
+      <main key={activeTab} className="flex-1 w-full animate-slide-up">
         {activeTab === 'home' && (
           <HeroSection 
             setActiveTab={setActiveTab} 
