@@ -238,43 +238,48 @@ export default function AIChatAssistant({ onOpenConsultModal }) {
           </div>
         </div>
 
-        {/* Right: Doctor Info & Quick Booking Card */}
-        <div className="lg:col-span-4 space-y-4 w-full">
+        {/* Right: Doctor Portrait Free-Standing & Seamlessly Blended with Background */}
+        <div className="lg:col-span-4 space-y-6 w-full flex flex-col items-center justify-center">
           
-          {/* Doctor Portrait Card with Elegant Glass Glow */}
-          <div className="glass-panel p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-teal-500/30 shadow-2xl bg-slate-900/90 text-center space-y-3 relative overflow-hidden group">
-            <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden bg-slate-950 border border-white/[0.08] shadow-inner">
+          {/* Frameless Seamless Doctor Portrait with Ambient Backlight */}
+          <div className="relative w-full max-w-[340px] sm:max-w-[380px] flex flex-col items-center justify-center select-none group">
+            
+            {/* Ambient Halo Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] sm:w-[360px] h-[320px] sm:h-[420px] bg-gradient-to-tr from-teal-500/30 via-cyan-500/20 to-indigo-500/25 blur-[95px] -z-10 rounded-full pointer-events-none animate-pulse-glow" />
+
+            {/* Natural Portrait - No Frame, Soft Bottom Blend */}
+            <div className="relative h-[380px] sm:h-[460px] w-full overflow-hidden flex items-end justify-center">
               <img 
                 src="/furqat_ai_chat.jpg" 
                 alt="Bag'ibekov Furqat" 
-                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover object-top filter contrast-[1.03] drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] group-hover:scale-103 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-              <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-teal-400/40 text-[10px] font-bold text-teal-300 flex items-center space-x-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Onlayn Maslahatchi</span>
-              </div>
+              {/* Bottom Canvas Gradient Blend */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0e1726] via-[#0e1726]/30 to-transparent pointer-events-none" />
             </div>
 
-            <div>
-              <h3 className="text-base sm:text-lg font-black text-white">Bag'ibekov Furqat</h3>
-              <p className="text-xs text-teal-300 font-semibold mt-0.5">Bosh Psixoterapevt • Sokin Qalb Asoschisi</p>
+            {/* Seamless Doctor Info Beneath */}
+            <div className="text-center mt-2 space-y-1 z-10">
+              <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-teal-500/30 text-teal-300 text-[10px] sm:text-xs font-bold mb-1 shadow-lg">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Onlayn Psixoterapevt</span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-black text-white tracking-wide">
+                Bag'ibekov Furqat
+              </h3>
+              <p className="text-xs text-teal-200/90 font-medium">
+                Bosh Psixoterapevt • Sokin Qalb Asoschisi
+              </p>
             </div>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl sm:rounded-3xl border border-teal-500/20 space-y-3.5 bg-slate-900/80">
-            <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-teal-400 flex-shrink-0" />
-              <h4 className="text-sm font-bold text-white">Klinik Xavfsizlik</h4>
-            </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Virtual yordamchi Bag'ibekov Furqatning ko'p yillik amaliyoti va dori-darmonsiz psixoterapiya tamoyillari asosida dasturlashtirilgan.
-            </p>
+          {/* Direct Consultation Booking Button */}
+          <div className="w-full max-w-[340px] sm:max-w-[380px]">
             <button
               onClick={() => onOpenConsultModal("Bag'ibekov Furqat")}
-              className="w-full py-3 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/20 active:scale-95 border border-teal-400/30 cursor-pointer"
+              className="w-full py-3.5 rounded-2xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center justify-center space-x-2 shadow-xl shadow-teal-500/25 active:scale-95 border border-teal-400/30 cursor-pointer"
             >
-              <PhoneCall className="w-4 h-4" />
+              <PhoneCall className="w-4 h-4 text-teal-100" />
               <span>Jonli Qabulga Yozilish</span>
             </button>
           </div>
