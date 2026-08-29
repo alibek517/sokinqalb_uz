@@ -86,7 +86,7 @@ export default function ThreeNeuralBackground() {
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // 2. 3D Floating Harmonic Torus Knot (Wireframe Consciousness Symbol on the Left Side)
+    // 2. 3D Floating Harmonic Torus Knot (Wireframe Consciousness Symbol)
     const torusGeo = new THREE.TorusKnotGeometry(40, 10, 100, 16);
     const torusMat = new THREE.MeshBasicMaterial({
       color: 0x06b6d4,
@@ -96,10 +96,9 @@ export default function ThreeNeuralBackground() {
       blending: THREE.AdditiveBlending
     });
     const torusKnot = new THREE.Mesh(torusGeo, torusMat);
-    torusKnot.position.set(-120, 10, -40); // Chap tomonga (Sarlavha orqasiga) joylashtirildi
     scene.add(torusKnot);
 
-    // 3. Second 3D Energy Sphere Wave (Far Left & Deep)
+    // 3. Second 3D Energy Sphere Wave
     const sphereGeo = new THREE.IcosahedronGeometry(30, 2);
     const sphereMat = new THREE.MeshBasicMaterial({
       color: 0x14b8a6,
@@ -109,8 +108,29 @@ export default function ThreeNeuralBackground() {
       blending: THREE.AdditiveBlending
     });
     const energySphere = new THREE.Mesh(sphereGeo, sphereMat);
-    energySphere.position.set(-160, -60, -70); // Pastki chap tomonga
     scene.add(energySphere);
+
+    // Responsive 3D Position & Scale (Desktop vs Mobile)
+    const isMobile = () => window.innerWidth < 768;
+
+    const updateMeshTransforms = () => {
+      const mobile = isMobile();
+      if (mobile) {
+        // Mobilda teng yarmi chap-yuqori tomondan nafis ko'rinib turadi
+        torusKnot.position.set(-35, 38, -40);
+        torusKnot.scale.set(0.72, 0.72, 0.72);
+        energySphere.position.set(-45, -55, -60);
+        energySphere.scale.set(0.65, 0.65, 0.65);
+      } else {
+        // Desktopda chap tomonda sarlavha orqasida
+        torusKnot.position.set(-115, 10, -40);
+        torusKnot.scale.set(1, 1, 1);
+        energySphere.position.set(-160, -60, -70);
+        energySphere.scale.set(1, 1, 1);
+      }
+    };
+
+    updateMeshTransforms();
 
     // Mouse Interaction
     let mouseX = 0;
@@ -138,6 +158,7 @@ export default function ThreeNeuralBackground() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      updateMeshTransforms();
     };
     window.addEventListener('resize', handleResize);
 
