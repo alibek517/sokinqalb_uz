@@ -542,24 +542,93 @@ export default function AdminPanelDashboard() {
   };
 
   // --- 7. RECEIPTS & STATS ---
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [showAddReceiptModal, setShowAddReceiptModal] = useState(false);
+  const [newReceiptForm, setNewReceiptForm] = useState({
+    userName: '',
+    phone: '',
+    course: '💎 Stress va Psixosomatikani Yechish',
+    amount: '100$',
+    paymentMethod: 'Click',
+    receiptImage: ''
+  });
+
   const [receipts, setReceipts] = useState(() => {
-    const saved = localStorage.getItem('sokinqalb_receipts');
+    const saved = localStorage.getItem('sokinqalb_receipts_v2');
     return saved ? JSON.parse(saved) : [
-      { id: 101, userName: "Alisher Vohidov", phone: "+998 90 123 45 67", course: "💎 Stress va Psixosomatikani Yechish", amount: "100$", status: "pending", time: "10 daqiqa oldin" },
-      { id: 102, userName: "Nodira Karimova", phone: "+998 93 987 65 43", course: "🔬 Xitoy Davolash Kapsulasi (10 seans)", amount: "350$", status: "approved", time: "1 soat oldin" },
+      { 
+        id: 101, 
+        userName: "Alisher Vohidov", 
+        phone: "+998 90 123 45 67", 
+        course: "💎 Stress va Psixosomatikani Yechish", 
+        amount: "100$ (~1 280 000 so'm)", 
+        paymentMethod: "Click Up",
+        transactionId: "CLK-892314981",
+        status: "pending", 
+        time: "10 daqiqa oldin",
+        receiptImage: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80"
+      },
+      { 
+        id: 102, 
+        userName: "Nodira Karimova", 
+        phone: "+998 93 987 65 43", 
+        course: "🔬 Xitoy Davolash Kapsulasi (10 seans)", 
+        amount: "350$ (~4 480 000 so'm)", 
+        paymentMethod: "Payme",
+        transactionId: "PAY-478129032",
+        status: "approved", 
+        time: "1 soat oldin",
+        receiptImage: "https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&auto=format&fit=crop&q=80"
+      },
+      { 
+        id: 103, 
+        userName: "Javohir Toshpo'latov", 
+        phone: "+998 97 555 12 34", 
+        course: "🌟 10$ Kurs (3 ta video-darslik)", 
+        amount: "10$ (~128 000 so'm)", 
+        paymentMethod: "Uzum Bank",
+        transactionId: "UZM-112938475",
+        status: "pending", 
+        time: "35 daqiqa oldin",
+        receiptImage: "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?w=600&auto=format&fit=crop&q=80"
+      }
     ];
   });
 
   const handleApproveReceipt = (id) => {
     const updated = receipts.map(r => r.id === id ? { ...r, status: 'approved' } : r);
     setReceipts(updated);
-    localStorage.setItem('sokinqalb_receipts', JSON.stringify(updated));
+    localStorage.setItem('sokinqalb_receipts_v2', JSON.stringify(updated));
+    if (selectedReceipt?.id === id) {
+      setSelectedReceipt({ ...selectedReceipt, status: 'approved' });
+    }
   };
 
   const handleDeleteReceipt = (id) => {
-    const updated = receipts.filter(r => r.id !== id);
+    if (window.confirm("Ushbu to'lov chekini o'chirmoqchimisiz?")) {
+      const updated = receipts.filter(r => r.id !== id);
+      setReceipts(updated);
+      localStorage.setItem('sokinqalb_receipts_v2', JSON.stringify(updated));
+      if (selectedReceipt?.id === id) {
+        setSelectedReceipt(null);
+      }
+    }
+  };
+
+  const handleSaveNewReceipt = (e) => {
+    e.preventDefault();
+    if (!newReceiptForm.userName.trim()) return;
+    const newReceiptItem = {
+      id: Date.now(),
+      ...newReceiptForm,
+      transactionId: `MAN-${Date.now().toString().slice(-6)}`,
+      status: 'approved',
+      time: 'Hozirgina'
+    };
+    const updated = [newReceiptItem, ...receipts];
     setReceipts(updated);
-    localStorage.setItem('sokinqalb_receipts', JSON.stringify(updated));
+    localStorage.setItem('sokinqalb_receipts_v2', JSON.stringify(updated));
+    setShowAddReceiptModal(false);
   };
 
   // --- PIN CODE AUTHENTICATION VIEW ---
@@ -939,46 +1008,287 @@ export default function AdminPanelDashboard() {
       {/* ========================================================================= */}
       {activeAdminTab === 'receipts' && (
         <div className="space-y-4">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold text-white">To'lov Cheklari & Buyurtmalar</h3>
-            <p className="text-xs text-slate-400">Mijozlar yuborgan to'lov cheklarini tasdiqlang va darslarga ruxsat bering</p>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">To'lov Cheklari & Skrinshotlari ({receipts.length} ta)</h3>
+              <p className="text-xs text-slate-400">Click, Payme, Uzum orqali yuborilgan haqiqiy to'lov cheklarini ko'ring va tasdiqlang</p>
+            </div>
+            <button
+              onClick={() => setShowAddReceiptModal(true)}
+              className="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white glowing-button flex items-center space-x-1.5 shadow-md cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Yangi Chek Qo'shish</span>
+            </button>
           </div>
 
           <div className="space-y-3">
             {receipts.map((r) => (
-              <div key={r.id} className="glass-panel p-4 sm:p-5 rounded-2xl border border-white/[0.08] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/90 shadow-md">
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <h4 className="font-bold text-white text-base">{r.userName}</h4>
-                    <span className="text-xs text-slate-400 font-mono">({r.phone})</span>
+              <div 
+                key={r.id} 
+                className="glass-panel p-4 sm:p-5 rounded-2xl border border-white/[0.08] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-900/90 shadow-lg hover:border-teal-500/30 transition-all"
+              >
+                {/* Left: Receipt Preview Image & Details */}
+                <div className="flex items-start sm:items-center space-x-3.5 min-w-0 w-full md:w-auto">
+                  {/* Clickable Receipt Thumbnail */}
+                  <div 
+                    onClick={() => setSelectedReceipt(r)}
+                    className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-teal-400/40 cursor-pointer group flex-shrink-0 shadow-md bg-slate-950"
+                    title="To'liq chekni ochish uchun bosing"
+                  >
+                    <img 
+                      src={r.receiptImage || "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80"} 
+                      alt="To'lov cheki" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/40 group-hover:bg-slate-950/20 flex items-center justify-center transition-all">
+                      <Eye className="w-5 h-5 text-white drop-shadow-md group-hover:scale-110 transition-transform" />
+                    </div>
                   </div>
-                  <p className="text-xs text-teal-300 mt-0.5">{r.course} — <b className="text-white">{r.amount}</b></p>
-                  <span className="text-[10px] text-slate-500 font-mono">{r.time}</span>
+
+                  {/* Transaction Info */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                      <h4 className="font-bold text-white text-sm sm:text-base truncate">{r.userName}</h4>
+                      <span className="text-xs text-slate-400 font-mono">({r.phone})</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-800 text-teal-300 border border-slate-700 font-mono">
+                        {r.paymentMethod || "Click"}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-teal-300 font-medium mt-0.5">
+                      {r.course} — <b className="text-white text-sm">{r.amount}</b>
+                    </p>
+
+                    <div className="flex items-center space-x-3 text-[10px] text-slate-500 font-mono mt-1">
+                      <span>🕒 {r.time}</span>
+                      {r.transactionId && <span>🆔 {r.transactionId}</span>}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                {/* Right: Actions */}
+                <div className="flex items-center space-x-2 w-full md:w-auto justify-end border-t md:border-t-0 border-slate-800 pt-2.5 md:pt-0">
+                  <button
+                    onClick={() => setSelectedReceipt(r)}
+                    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-teal-500/20 text-teal-300 border border-slate-700 hover:border-teal-400 text-xs font-semibold flex items-center space-x-1.5 cursor-pointer"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Chekni Ko'rish</span>
+                  </button>
+
                   {r.status === 'approved' ? (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold text-emerald-300 bg-emerald-950/40 border border-emerald-500/30 flex items-center space-x-1">
+                    <span className="px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/40 flex items-center space-x-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Tasdiqlangan</span>
                     </span>
                   ) : (
                     <button
                       onClick={() => handleApproveReceipt(r.id)}
-                      className="px-4 py-2 rounded-xl font-bold text-xs text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
+                      className="px-4 py-2 rounded-xl font-bold text-xs text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer whitespace-nowrap"
                     >
                       Tasdiqlash & Kursni Ochish
                     </button>
                   )}
+
                   <button
                     onClick={() => handleDeleteReceipt(r.id)}
                     className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 cursor-pointer"
+                    title="O'chirish"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* FULL-SCREEN RECEIPT LIGHTBOX MODAL */}
+      {selectedReceipt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-md animate-fade-in">
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-teal-500/40 max-w-xl w-full bg-slate-900/98 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <span className="text-[10px] text-teal-400 font-bold uppercase tracking-wider">To'lov Skrinshoti & Hujjati</span>
+                <h4 className="font-bold text-white text-base sm:text-lg">
+                  {selectedReceipt.userName} — {selectedReceipt.amount}
+                </h4>
+              </div>
+              <button 
+                onClick={() => setSelectedReceipt(null)} 
+                className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* High-Resolution Receipt Image Display */}
+            <div className="relative rounded-2xl overflow-hidden border-2 border-teal-500/30 bg-slate-950 max-h-[380px] flex items-center justify-center group">
+              <img 
+                src={selectedReceipt.receiptImage || "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80"} 
+                alt="To'lov cheki skrinshoti" 
+                className="w-full max-h-[380px] object-contain"
+              />
+            </div>
+
+            {/* Receipt Summary Grid */}
+            <div className="grid grid-cols-2 gap-2 text-xs bg-slate-950/70 p-3.5 rounded-xl border border-slate-800 font-medium">
+              <div>
+                <span className="text-slate-500 block text-[10px]">Mijoz:</span>
+                <span className="text-white font-bold">{selectedReceipt.userName}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">Telefon:</span>
+                <span className="text-teal-300 font-mono font-bold">{selectedReceipt.phone}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">Kurs / Seans:</span>
+                <span className="text-white">{selectedReceipt.course}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">To'lov Tizimi:</span>
+                <span className="text-amber-300 font-mono">{selectedReceipt.paymentMethod || "Click"}</span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => handleDeleteReceipt(selectedReceipt.id)}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-rose-400 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 flex items-center space-x-1.5 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>O'chirish</span>
+              </button>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedReceipt(null)}
+                  className="px-4 py-2.5 rounded-xl text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 cursor-pointer"
+                >
+                  Yopish
+                </button>
+                {selectedReceipt.status !== 'approved' && (
+                  <button
+                    type="button"
+                    onClick={() => handleApproveReceipt(selectedReceipt.id)}
+                    className="px-5 py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
+                  >
+                    Tasdiqlash & Kursni Ochish
+                  </button>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ADD RECEIPT MODAL */}
+      {showAddReceiptModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
+          <div className="glass-panel p-6 rounded-3xl border border-teal-500/30 max-w-lg w-full bg-slate-900/98 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h4 className="font-bold text-white text-base">Yangi To'lov Cheki Qo'shish</h4>
+              <button onClick={() => setShowAddReceiptModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveNewReceipt} className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Mijoz Ismi:</label>
+                  <input
+                    type="text"
+                    required
+                    value={newReceiptForm.userName}
+                    onChange={e => setNewReceiptForm({ ...newReceiptForm, userName: e.target.value })}
+                    placeholder="Alisher Vohidov"
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Telefon Raqami:</label>
+                  <input
+                    type="text"
+                    required
+                    value={newReceiptForm.phone}
+                    onChange={e => setNewReceiptForm({ ...newReceiptForm, phone: e.target.value })}
+                    placeholder="+998 90 123 45 67"
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">To'lov Summasi:</label>
+                  <input
+                    type="text"
+                    required
+                    value={newReceiptForm.amount}
+                    onChange={e => setNewReceiptForm({ ...newReceiptForm, amount: e.target.value })}
+                    placeholder="100$ (~1 280 000 so'm)"
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">To'lov Tizimi:</label>
+                  <select
+                    value={newReceiptForm.paymentMethod}
+                    onChange={e => setNewReceiptForm({ ...newReceiptForm, paymentMethod: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  >
+                    <option value="Click Up">Click Up</option>
+                    <option value="Payme">Payme</option>
+                    <option value="Uzum Bank">Uzum Bank</option>
+                    <option value="Karta / Bank">Karta / Bank</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Tanlangan Kurs / Xizmat:</label>
+                <input
+                  type="text"
+                  required
+                  value={newReceiptForm.course}
+                  onChange={e => setNewReceiptForm({ ...newReceiptForm, course: e.target.value })}
+                  placeholder="💎 Stress va Psixosomatikani Yechish"
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              {/* Receipt Image Upload (Gallery & Camera) */}
+              <ImageUploadPicker
+                label="To'lov Cheki Skrinshoti (Galereya yoki Kamera)"
+                currentImage={newReceiptForm.receiptImage}
+                onImageSelected={(imgData) => setNewReceiptForm({ ...newReceiptForm, receiptImage: imgData })}
+              />
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddReceiptModal(false)}
+                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl font-bold text-white glowing-button cursor-pointer"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
