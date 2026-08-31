@@ -93,7 +93,7 @@ export default function HeroSection({ setActiveTab, onOpenConsultModal }) {
           {/* Right Column: Founder Furqat Bag'ibekov Photo with Asymmetrical Organic Frame & Nameplate (5 Cols) */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end pb-4 sm:pb-0">
             <FurqatDoctorPortrait 
-              imageSrc="/furqat_hero.png" 
+              imageSrc="/furqat_hero_desk.jpg" 
               size="wide" 
               direction="right" 
               isFramed={true} 

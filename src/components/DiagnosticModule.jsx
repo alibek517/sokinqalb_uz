@@ -156,7 +156,7 @@ export default function DiagnosticModule({ setActiveTab, onOpenConsultModal }) {
         <div className="lg:col-span-5 flex flex-col items-center space-y-4">
           <div className="w-full flex justify-center">
             <FurqatDoctorPortrait 
-              imageSrc="/furqat_diagnostic.jpg" 
+              imageSrc="/furqat_hero.png" 
               size="wide" 
               direction="left" 
             />
