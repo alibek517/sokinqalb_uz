@@ -189,16 +189,29 @@ const PlatformSelector = ({ value = 'both', onChange }) => {
 };
 
 export default function AdminPanelDashboard() {
-  // --- 1. PIN CODE SECURITY (0189) ---
+  // --- 1. PIN CODE SECURITY (Default: 0189 or Custom) ---
+  const [adminPin, setAdminPin] = useState(() => {
+    return localStorage.getItem('sokinqalb_admin_pin') || '0189';
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('sokinqalb_admin_auth') === 'true';
   });
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
 
+  // Change PIN Modal State
+  const [showChangePinModal, setShowChangePinModal] = useState(false);
+  const [changePinForm, setChangePinForm] = useState({
+    oldPin: '',
+    newPin: '',
+    confirmPin: '',
+    error: '',
+    success: ''
+  });
+
   const handlePinSubmit = (e) => {
     if (e) e.preventDefault();
-    if (pinInput === '0189') {
+    if (pinInput === adminPin) {
       setIsAuthenticated(true);
       localStorage.setItem('sokinqalb_admin_auth', 'true');
       setPinError(false);
@@ -213,6 +226,42 @@ export default function AdminPanelDashboard() {
     setIsAuthenticated(false);
     localStorage.removeItem('sokinqalb_admin_auth');
     setPinInput('');
+  };
+
+  const handleSaveNewPin = (e) => {
+    e.preventDefault();
+    setChangePinForm(prev => ({ ...prev, error: '', success: '' }));
+
+    if (changePinForm.oldPin !== adminPin) {
+      setChangePinForm(prev => ({ ...prev, error: "❌ Eski PIN kod noto'g'ri kiritildi!" }));
+      return;
+    }
+
+    if (changePinForm.newPin.length !== 4 || !/^\d{4}$/.test(changePinForm.newPin)) {
+      setChangePinForm(prev => ({ ...prev, error: "⚠️ Yangi PIN kod aniq 4 ta raqamdan iborat bo'lishi kerak!" }));
+      return;
+    }
+
+    if (changePinForm.newPin !== changePinForm.confirmPin) {
+      setChangePinForm(prev => ({ ...prev, error: "❌ Yangi PIN kod va tasdiqlash kodi bir-biriga mos kelmadi!" }));
+      return;
+    }
+
+    // Success save
+    setAdminPin(changePinForm.newPin);
+    localStorage.setItem('sokinqalb_admin_pin', changePinForm.newPin);
+    setChangePinForm(prev => ({ 
+      ...prev, 
+      success: `🎉 PIN kod muvaffaqiyatli o'zgartirildi! Yangi PIN: ${changePinForm.newPin}`,
+      oldPin: '',
+      newPin: '',
+      confirmPin: ''
+    }));
+
+    setTimeout(() => {
+      setShowChangePinModal(false);
+      setChangePinForm({ oldPin: '', newPin: '', confirmPin: '', error: '', success: '' });
+    }, 2000);
   };
 
   // --- 2. ADMIN TABS ---
@@ -655,7 +704,7 @@ export default function AdminPanelDashboard() {
                 maxLength={4}
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value)}
-                placeholder="PIN Kod (0189)"
+                placeholder="••••"
                 className="w-full text-center tracking-[0.6em] text-2xl font-mono py-3.5 px-4 rounded-2xl bg-slate-950/90 border border-teal-500/40 text-teal-300 placeholder-slate-600 focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20 transition-all"
                 autoFocus
               />
@@ -718,13 +767,24 @@ export default function AdminPanelDashboard() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center flex-wrap gap-2">
+          <button
+            onClick={() => {
+              setChangePinForm({ oldPin: '', newPin: '', confirmPin: '', error: '', success: '' });
+              setShowChangePinModal(true);
+            }}
+            className="px-3.5 py-2 rounded-xl text-xs font-bold text-teal-300 bg-teal-950/70 hover:bg-teal-900/80 border border-teal-500/40 flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm active:scale-95"
+          >
+            <KeyRound className="w-4 h-4" />
+            <span>PIN Kodni O'zgartirish</span>
+          </button>
+
           <button
             onClick={handleLogout}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 flex items-center space-x-1.5 transition-colors cursor-pointer"
+            className="px-3.5 py-2 rounded-xl text-xs font-bold text-rose-300 bg-rose-950/50 hover:bg-rose-900/70 border border-rose-500/30 flex items-center space-x-1.5 transition-colors cursor-pointer active:scale-95"
           >
             <LogOut className="w-4 h-4" />
-            <span>Chiqish (Logout)</span>
+            <span>Chiqish</span>
           </button>
         </div>
       </div>
@@ -1657,6 +1717,107 @@ export default function AdminPanelDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 9. CHANGE ADMIN PIN CODE MODAL */}
+      {/* ========================================================================= */}
+      {showChangePinModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+          <div className="glass-panel p-5 sm:p-8 rounded-3xl max-w-md w-full border border-teal-500/40 bg-slate-900/95 shadow-2xl relative space-y-5 animate-scale-up">
+            
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2 text-teal-300 font-bold text-base">
+                <KeyRound className="w-5 h-5 text-teal-400" />
+                <span>Admin PIN Kodni Yangilash</span>
+              </div>
+              <button
+                onClick={() => setShowChangePinModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {changePinForm.error && (
+              <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-200 text-xs font-semibold flex items-center space-x-2">
+                <span>{changePinForm.error}</span>
+              </div>
+            )}
+
+            {changePinForm.success && (
+              <div className="p-3 rounded-xl bg-teal-950/80 border border-teal-500/40 text-teal-200 text-xs font-semibold flex items-center space-x-2">
+                <span>{changePinForm.success}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveNewPin} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold mb-1.5">
+                  1. Hozirgi (Eski) PIN Kod:
+                </label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  required
+                  value={changePinForm.oldPin}
+                  onChange={e => setChangePinForm({ ...changePinForm, oldPin: e.target.value })}
+                  placeholder="Eski PIN (masalan: 0189)"
+                  className="w-full text-center tracking-[0.4em] text-lg font-mono p-3 rounded-xl bg-slate-950 border border-slate-700 text-teal-300 focus:border-teal-400 focus:outline-none"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1.5">
+                  2. Yangi 4 Xonali PIN Kod:
+                </label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  required
+                  value={changePinForm.newPin}
+                  onChange={e => setChangePinForm({ ...changePinForm, newPin: e.target.value })}
+                  placeholder="Yangi PIN (4 ta raqam)"
+                  className="w-full text-center tracking-[0.4em] text-lg font-mono p-3 rounded-xl bg-slate-950 border border-slate-700 text-teal-300 focus:border-teal-400 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1.5">
+                  3. Yangi PIN Kodni Qayta Kiriting:
+                </label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  required
+                  value={changePinForm.confirmPin}
+                  onChange={e => setChangePinForm({ ...changePinForm, confirmPin: e.target.value })}
+                  placeholder="Yangi PIN ni tasdiqlang"
+                  className="w-full text-center tracking-[0.4em] text-lg font-mono p-3 rounded-xl bg-slate-950 border border-slate-700 text-teal-300 focus:border-teal-400 focus:outline-none"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setShowChangePinModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl font-bold text-white glowing-button flex items-center space-x-1.5 shadow-lg shadow-teal-500/20 cursor-pointer"
+                >
+                  <KeyRound className="w-4 h-4" />
+                  <span>PIN Kodni Saqlash</span>
+                </button>
+              </div>
+            </form>
+
           </div>
         </div>
       )}
