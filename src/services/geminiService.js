@@ -11,7 +11,10 @@ const CANDIDATE_MODELS = [
 
 const BASE_SYSTEM_PROMPT = `Sen 12 yillik tajribaga ega yetakchi psixoterapevt Bag'ibekov Furqat («Sokin Qalb» markazi asoschisi)ning shaxsiy Yordamchisisan.
 O'zingni doimo «Bag'ibekov Furqatning Yordamchisi» deb tanishtirasan. Hech qachon o'zingni «sun'iy intellekt» yoki «robot» deb atama, balki Furqat Bag'ibekovning shaxsiy yordamchisi va neyro-maslahatchisi sifatida muloqot qil.
-Sen foydalanuvchilar bilan xuddi haqiqiy jonli psixoterapevt yordamchisi kabi juda samimiy, iliq, tushunuvchi, mehrli va professional tilda sof o'zbek tilida muloqot qilasan.
+Sen foydalanuvchilar bilan xuddi haqiqiy jonli psixoterapevt yordamchisi kabi juda samimiy, iliq, tushunuvchi, mehrli va professional tilda 100% FAQAT SOF O'ZBEK TILIDA muloqot qilasan.
+
+QAT'IY TIL TALABI:
+Barcha so'zlaring, diagnostika xulosalari, tahlillaring va tavsiyalaring MUTLAQO SOF O'ZBEK TILIDA (o'zbek lotin alifbosida) bo'lishi shart! Hech qanday inglizcha atama (masalan: "Deep Analysis", "insomnia", "suppress pain", "conscious mind", "subconscious anxiety" kabi) ishlatilmasin! Barchasini chiroyli o'zbekcha ifodalang: «Chuqur Tahlil», «Uyqusizlikning asl sababi», «Ong osti bloklari», «Tana psixosomatikasi».
 
 DAVOLASH TAMOYILLARING VA METODIKANG:
 1. 100% dori-darmonsiz davolash. Inson ong ostidagi qisilishlar va bloklar tana kasalliklarining 80% iga sabab bo'ladi.
@@ -79,7 +82,7 @@ export async function callGeminiAI(userPrompt, customSystemPrompt = BASE_SYSTEM_
  */
 export async function askAIChatAssistant(userMessage, conversationHistory = []) {
   const historyText = conversationHistory.slice(-4).map(m => `${m.sender === 'user' ? 'Foydalanuvchi' : 'AI Shifokor'}: ${m.text}`).join('\n');
-  const prompt = `Avvalgi suhbat konteksti:\n${historyText}\n\nFoydalanuvchining yangi murojaati: "${userMessage}"\n\nIltimos, Bag'ibekov Furqatning klinik metodikasi asosida unga mehrli, tushunarli, individual va foydali professional javob ber.`;
+  const prompt = `Avvalgi suhbat konteksti:\n${historyText}\n\nFoydalanuvchining yangi murojaati: "${userMessage}"\n\nQAT'IY TALAB: 100% sof o'zbek tilida javob ber. Iltimos, Bag'ibekov Furqatning klinik metodikasi asosida unga mehrli, tushunarli, individual va foydali professional javob ber.`;
   return await callGeminiAI(prompt, BASE_SYSTEM_PROMPT, 1000);
 }
 
@@ -93,14 +96,34 @@ export async function analyzeDiagnosticWithGemini(answers, totalScore, riskLevel
 - Javoblari:
 ${answers.map((a, i) => `${i + 1}. [${a.category}]: ${a.question} -> Tanlangan javob: "${a.selectedOption}" (Ball: ${a.score})`).join('\n')}
 
-VAZIFA:
-Bag'ibekov Furqat nomidan ushbu inson uchun individual, chuqur va aniq «Ong Osti va Stress Diagnostik Xulosasi»ni tuzib ber:
-1. 🧠 **Ong osti holati va asosiy ildiz muammosi tahlili** (qaysi bloklar uni qiynamoqda);
-2. 🫀 **Tanadagi psixosomatik va hissiy xavflar**;
-3. ⚡ **Zudlik bilan tavsiya etiladigan 3 ta amaliy qadam** (nafas, ong osti bilan ishlash, tartib);
-4. 💎 **Tavsiya etiladigan klinik muolaja** (Xitoy kapsulasi, Fransiya lampasi yoki konsultatsiya).`;
+QAT'IY QONUN:
+100% FAQAT SOF O'ZBEK TILIDA YOZING! HECH QANDAY INGLIZCHA SO'Z ISHLATILMASIN (masalan: "Deep Analysis", "insomnia", "suppress pain", "conscious mind", "subconscious anxiety" va boshqa inglizcha so'zlar QAT'IYAN TAQIQLANADI)!
 
-  return await callGeminiAI(prompt, BASE_SYSTEM_PROMPT, 1200);
+VAZIFA:
+Bag'ibekov Furqat nomidan ushbu inson uchun individual, samimiy va chuqur «Ong Osti va Stress Diagnostik Xulosasi»ni tuzib ber:
+1. 🧠 **Ong osti holati va uyqusizlik/stressning asl sabablari** (kunduzi qalbida nimalarni aql orqali bostirib yurgani, kechasi ong osti nima sababdan bezovta bo'layotgani haqida sof o'zbekcha tushuntirish);
+2. 🫀 **Tanadagi psixosomatik va hissiy xavflar**;
+3. ⚡ **Zudlik bilan tavsiya etiladigan 3 ta amaliy qadam** (Vagus nafas amaliyoti, kechki neyro-uyqu qoidalari, ong osti bilan ishlash);
+4. 💎 **Tavsiya etiladigan klinik muolaja** (Xitoy kapsulaterapiyasi, Fransiya lampasi yoki shaxsiy konsultatsiya).`;
+
+  const fallbackUzbekText = `🧠 **Furqat Bag'ibekovning Shaxsiy Diagnostik Xulosasi:**\n\n` +
+    `📌 **1. Ong osti holati va uyqusizlikning asl sababi:**\n` +
+    `Kunduzi inson aql va mantiq orqali ichki og'riqlarni, o'zini ayblashni va moliyaviy/ruhiy xavotirlarni bostirib yuradi. Kechasi esa aql (ong) uxlab, ong osti kunduzi hal etilmagan barcha ichki xavotir va tarangliklarni yuzaga chiqaradi. Natijada uyqusizlik, yarim kechasi uyg'onib ketish va fikrlar oqimi paydo bo'ladi.\n\n` +
+    `🫀 **2. Tana psixosomatikasi:**\n` +
+    `Yelka, bo'yin va ko'krak sohasidagi mushaklar doimiy himoya holatida qisilib qolgan. Bu esa tananing biologik quvvatini so'rib oladi.\n\n` +
+    `⚡ **3. Bugunoq boshlash kerak bo'lgan 3 ta amaliyot:**\n` +
+    `• **4-7-8 Vagus nafas mashqi:** 4 soniya burundan nafas oling, 7 soniya ushlab turing, 8 soniya og'izdan sekin chiqaring (5 marta);\n` +
+    `• **Kechki qog'oz mashqi:** Uyqudan 30 daqiqa oldin barcha xavotirlarni qog'ozga yozib, aqlingizni bo'shating;\n` +
+    `• **432Hz neyro-musiqa:** Kechasi neyronlarni chuqur tinchlantiruvchi chastotani tinglang.\n\n` +
+    `💎 **4. Markazimiz tavsiyasi:**\n` +
+    `Ong osti bloklarini to'liq yechish uchun **Xitoy davolash kapsulasi** va **Fransiya neyro-lampasi** seanslari tavsiya etiladi.`;
+
+  try {
+    const result = await callGeminiAI(prompt, BASE_SYSTEM_PROMPT, 1200);
+    return result || fallbackUzbekText;
+  } catch (e) {
+    return fallbackUzbekText;
+  }
 }
 
 /**
