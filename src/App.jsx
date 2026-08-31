@@ -197,7 +197,7 @@ export default function App() {
               <div className="space-y-2.5">
                 {/* Telegram Channel */}
                 <a
-                  href="https://t.me/sokin_qalb_rasmiy"
+                  href="https://t.me/Sokin_Qalb_Furqat"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between p-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/25 text-sky-200 transition-all shadow-sm active:scale-98 group"
@@ -210,10 +210,31 @@ export default function App() {
                     </div>
                     <div className="min-w-0">
                       <div className="text-xs font-bold text-white whitespace-nowrap">Telegram Rasmiy Kanal</div>
-                      <div className="text-[10px] text-sky-400 font-mono truncate">@sokin_qalb_rasmiy</div>
+                      <div className="text-[10px] text-sky-400 font-mono truncate">@Sokin_Qalb_Furqat</div>
                     </div>
                   </div>
                   <span className="text-[10px] text-sky-300 font-semibold px-2 py-0.5 rounded-md bg-sky-500/20 whitespace-nowrap flex-shrink-0 ml-2">A'zo bo'lish →</span>
+                </a>
+
+                {/* YouTube Channel */}
+                <a
+                  href="https://www.youtube.com/@Sokin_Qalb_Furqat"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 text-red-200 transition-all shadow-sm active:scale-98 group"
+                >
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <div className="w-7 h-7 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400 group-hover:scale-110 transition-transform flex-shrink-0">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-white whitespace-nowrap">YouTube Rasmiy Kanal</div>
+                      <div className="text-[10px] text-red-400 font-mono truncate">@Sokin_Qalb_Furqat</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-red-300 font-semibold px-2 py-0.5 rounded-md bg-red-500/20 whitespace-nowrap flex-shrink-0 ml-2">Obuna bo'lish →</span>
                 </a>
 
                 {/* Instagram Profile */}
