@@ -30,7 +30,16 @@ import {
   Globe,
   Radio,
   Camera,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Video,
+  Music,
+  Mic,
+  FileText,
+  File,
+  Download,
+  Play,
+  Paperclip,
+  FolderOpen
 } from 'lucide-react';
 import { INITIAL_TEAM, INITIAL_COURSES, INITIAL_GIFTS, HOURLY_ROUTINE } from '../data/initialData';
 
@@ -184,6 +193,161 @@ const PlatformSelector = ({ value = 'both', onChange }) => {
           </button>
         ))}
       </div>
+    </div>
+  );
+};
+
+// Universal Course Media & File Uploader (Video, Audio, Document, Text)
+const CourseMaterialUploadPicker = ({ mediaType, mediaData, mediaUrl, fileName, fileSize, onMediaSelected, onUrlChange }) => {
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const sizeStr = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onMediaSelected({
+          data: reader.result,
+          name: file.name,
+          size: sizeStr
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const getAcceptTypes = () => {
+    if (mediaType === 'video') return 'video/mp4,video/webm,video/ogg,video/quicktime,video/*';
+    if (mediaType === 'audio') return 'audio/mp3,audio/mpeg,audio/wav,audio/ogg,audio/m4a,audio/*';
+    if (mediaType === 'document') return '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar';
+    return '*/*';
+  };
+
+  return (
+    <div className="space-y-3 p-3.5 rounded-2xl bg-slate-950/80 border border-teal-500/30">
+      <div className="flex items-center justify-between">
+        <label className="block text-slate-300 font-bold text-xs">
+          {mediaType === 'video' && '🎥 Video Darslik Fayli / URL:'}
+          {mediaType === 'audio' && '🎙️ Audio / Golos Fayli / URL:'}
+          {mediaType === 'document' && '📄 Hujjat Fayli (PDF, Word, Excel):'}
+          {mediaType === 'text' && '📝 Matnli Darslik Ko\'rsatmasi:'}
+        </label>
+        {fileName && (
+          <span className="text-[10px] text-teal-300 font-mono px-2 py-0.5 rounded bg-teal-950 border border-teal-500/40">
+            {fileSize}
+          </span>
+        )}
+      </div>
+
+      {mediaType !== 'text' && (
+        <div className="space-y-2.5">
+          {/* File Upload Button & Status */}
+          <div className="flex items-center space-x-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={getAcceptTypes()}
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/40 text-teal-200 font-bold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-sm active:scale-95"
+            >
+              <Upload className="w-3.5 h-3.5 text-teal-400" />
+              <span>Qurilmadan Fayl Yuklash ({mediaType.toUpperCase()})</span>
+            </button>
+            {mediaData && (
+              <button
+                type="button"
+                onClick={() => onMediaSelected({ data: '', name: '', size: '' })}
+                className="p-2.5 rounded-xl bg-rose-950/60 hover:bg-rose-900 border border-rose-500/30 text-rose-300 text-xs transition-colors cursor-pointer"
+                title="Faylni o'chirish"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Direct Streaming / Cloud URL fallback input */}
+          <div className="space-y-1">
+            <label className="text-[10px] text-slate-400 font-medium">Yoki to'g'ridan-to'g'ri Media URL manzili (YouTube / Cloud / CDN):</label>
+            <input
+              type="url"
+              value={mediaUrl || ''}
+              onChange={e => onUrlChange(e.target.value)}
+              placeholder={
+                mediaType === 'video' ? 'https://... (Video URL yoki YouTube)' :
+                mediaType === 'audio' ? 'https://... (MP3 yoki Audio URL)' :
+                'https://... (PDF yoki Fayl URL)'
+              }
+              className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-teal-300 font-mono text-xs focus:border-teal-400 focus:outline-none"
+            />
+          </div>
+
+          {/* Live Preview Area */}
+          {(mediaData || mediaUrl || fileName) && (
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2 mt-2">
+              <div className="text-[11px] font-bold text-slate-300 flex items-center space-x-1.5">
+                <Eye className="w-3.5 h-3.5 text-teal-400" />
+                <span>Jonli Ko'rish (Preview):</span>
+              </div>
+
+              {fileName && (
+                <div className="text-xs text-teal-300 font-semibold truncate flex items-center space-x-1.5">
+                  <Paperclip className="w-3 h-3 flex-shrink-0" />
+                  <span>{fileName}</span>
+                </div>
+              )}
+
+              {mediaType === 'video' && (mediaData || mediaUrl) && (
+                <div className="rounded-xl overflow-hidden bg-black/80 aspect-video max-h-48 flex items-center justify-center">
+                  <video
+                    src={mediaData || mediaUrl}
+                    controls
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+
+              {mediaType === 'audio' && (mediaData || mediaUrl) && (
+                <div className="p-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center space-x-2">
+                  <Music className="w-5 h-5 text-teal-400 flex-shrink-0" />
+                  <audio
+                    src={mediaData || mediaUrl}
+                    controls
+                    className="w-full h-8"
+                  />
+                </div>
+              )}
+
+              {mediaType === 'document' && (
+                <div className="p-3 rounded-xl bg-slate-950 border border-teal-500/20 flex items-center justify-between">
+                  <div className="flex items-center space-x-2 min-w-0">
+                    <FileText className="w-5 h-5 text-teal-400 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-white truncate">{fileName || 'Hujjat fayli'}</div>
+                      <div className="text-[10px] text-slate-400">{fileSize || 'Tayyor'}</div>
+                    </div>
+                  </div>
+                  {(mediaData || mediaUrl) && (
+                    <a
+                      href={mediaData || mediaUrl}
+                      download={fileName || 'darslik_fayli'}
+                      className="px-2.5 py-1 rounded-lg bg-teal-500/20 text-teal-300 text-xs font-bold flex items-center space-x-1 hover:bg-teal-500/30"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Yuklab olish</span>
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -363,6 +527,111 @@ export default function AdminPanelDashboard() {
       const updated = courses.filter(c => c.id !== id);
       setCourses(updated);
       localStorage.setItem('sokinqalb_courses_list', JSON.stringify(updated));
+    }
+  };
+
+  // --- 3.1. COURSE MATERIALS & LESSONS CRUD (Video / Audio / Voice / Document / Text) ---
+  const [selectedCourseForMaterials, setSelectedCourseForMaterials] = useState(null);
+  const [showMaterialsModal, setShowMaterialsModal] = useState(false);
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [showLessonFormModal, setShowLessonFormModal] = useState(false);
+  const [lessonFormData, setLessonFormData] = useState({
+    title: '',
+    type: 'video', // 'video' | 'audio' | 'document' | 'text'
+    duration: '15 daqiqa',
+    mediaUrl: '',
+    mediaData: '',
+    fileName: '',
+    fileSize: '',
+    description: '',
+    actionTask: ''
+  });
+
+  const handleOpenCourseMaterials = (course) => {
+    setSelectedCourseForMaterials(course);
+    setShowMaterialsModal(true);
+  };
+
+  const handleOpenAddLesson = () => {
+    setEditingLesson(null);
+    const currentCount = selectedCourseForMaterials?.lessons?.length || 0;
+    setLessonFormData({
+      title: `${currentCount + 1}-Dars: Yangi Amaliyot`,
+      type: 'video',
+      duration: '15 daqiqa',
+      mediaUrl: '',
+      mediaData: '',
+      fileName: '',
+      fileSize: '',
+      description: 'Bag\'ibekov Furqatning ushbu darslik bo\'yicha asosiy psixoterapevtik ko\'rsatmalari va amaliy tavsiyalari.',
+      actionTask: 'Darsni to\'liq ko\'rib, nafas mashqlarini 5 marta bajaring.'
+    });
+    setShowLessonFormModal(true);
+  };
+
+  const handleOpenEditLesson = (lesson) => {
+    setEditingLesson(lesson);
+    setLessonFormData({
+      title: lesson.title || '',
+      type: lesson.type || 'video',
+      duration: lesson.duration || '15 daqiqa',
+      mediaUrl: lesson.mediaUrl || '',
+      mediaData: lesson.mediaData || '',
+      fileName: lesson.fileName || '',
+      fileSize: lesson.fileSize || '',
+      description: lesson.description || '',
+      actionTask: lesson.actionTask || ''
+    });
+    setShowLessonFormModal(true);
+  };
+
+  const handleSaveLesson = (e) => {
+    e.preventDefault();
+    if (!selectedCourseForMaterials) return;
+    if (!lessonFormData.title.trim()) return;
+
+    const currentLessons = selectedCourseForMaterials.lessons || [];
+    let updatedLessons;
+
+    if (editingLesson) {
+      updatedLessons = currentLessons.map(l => l.id === editingLesson.id ? {
+        ...editingLesson,
+        ...lessonFormData
+      } : l);
+    } else {
+      const newLesson = {
+        id: Date.now(),
+        ...lessonFormData
+      };
+      updatedLessons = [...currentLessons, newLesson];
+    }
+
+    const updatedCourse = {
+      ...selectedCourseForMaterials,
+      lessons: updatedLessons,
+      lessons_count: updatedLessons.length
+    };
+
+    const updatedCourses = courses.map(c => c.id === selectedCourseForMaterials.id ? updatedCourse : c);
+    setCourses(updatedCourses);
+    setSelectedCourseForMaterials(updatedCourse);
+    localStorage.setItem('sokinqalb_courses_list', JSON.stringify(updatedCourses));
+    setShowLessonFormModal(false);
+  };
+
+  const handleDeleteLesson = (lessonId) => {
+    if (!selectedCourseForMaterials) return;
+    if (window.confirm("Haqiqatan ham ushbu darslikni o'chirmoqchimisiz?")) {
+      const updatedLessons = (selectedCourseForMaterials.lessons || []).filter(l => l.id !== lessonId);
+      const updatedCourse = {
+        ...selectedCourseForMaterials,
+        lessons: updatedLessons,
+        lessons_count: updatedLessons.length
+      };
+      const updatedCourses = courses.map(c => c.id === selectedCourseForMaterials.id ? updatedCourse : c);
+      setCourses(updatedCourses);
+      setSelectedCourseForMaterials(updatedCourse);
+      localStorage.setItem('sokinqalb_courses_list', JSON.stringify(updatedCourses));
     }
   };
 
@@ -870,21 +1139,33 @@ export default function AdminPanelDashboard() {
                   </p>
                 </div>
 
-                <div className="flex items-center justify-end space-x-2 border-t border-slate-800 pt-3">
+                <div className="space-y-2 border-t border-slate-800 pt-3">
+                  {/* Course Materials & Files Button */}
                   <button
-                    onClick={() => handleOpenEditCourse(course)}
-                    className="p-2 rounded-lg bg-slate-800 hover:bg-teal-500/20 text-teal-300 border border-slate-700 hover:border-teal-400 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                    type="button"
+                    onClick={() => handleOpenCourseMaterials(course)}
+                    className="w-full py-2 px-3 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/40 text-teal-200 text-xs font-bold flex items-center justify-center space-x-1.5 shadow-sm transition-all cursor-pointer hover:scale-[1.01] active:scale-95"
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Tahrirlash</span>
+                    <Video className="w-3.5 h-3.5 text-teal-400" />
+                    <span>Darslar & Fayllar ({course.lessons?.length || 0} ta)</span>
                   </button>
-                  <button
-                    onClick={() => handleDeleteCourse(course.id)}
-                    className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 hover:border-rose-400 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>O'chirish</span>
-                  </button>
+
+                  <div className="flex items-center justify-end space-x-2">
+                    <button
+                      onClick={() => handleOpenEditCourse(course)}
+                      className="p-2 rounded-lg bg-slate-800 hover:bg-teal-500/20 text-teal-300 border border-slate-700 hover:border-teal-400 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Tahrirlash</span>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCourse(course.id)}
+                      className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 hover:border-rose-400 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>O'chirish</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -1717,6 +1998,327 @@ export default function AdminPanelDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 8. COURSE MATERIALS & LESSONS MANAGER MODAL */}
+      {/* ========================================================================= */}
+      {showMaterialsModal && selectedCourseForMaterials && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+          <div className="glass-panel p-5 sm:p-7 rounded-3xl max-w-3xl w-full border border-teal-500/40 bg-slate-900/95 shadow-2xl space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-[10px] font-bold uppercase tracking-wider">
+                  <Video className="w-3 h-3" />
+                  <span>Darslar & Fayllar Markazi</span>
+                </div>
+                <h3 className="text-base sm:text-xl font-black text-white">
+                  {selectedCourseForMaterials.title}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Ushbu kursni sotib olgan yoki ochgan foydalanuvchilar ko'radigan video, audio, PDF va matnli darsliklar
+                </p>
+              </div>
+              <button
+                onClick={() => setShowMaterialsModal(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Actions Bar */}
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="text-xs text-slate-300 font-semibold">
+                Jami darslar: <span className="text-teal-300 font-bold">{selectedCourseForMaterials.lessons?.length || 0} ta</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenAddLesson}
+                className="px-4 py-2 rounded-xl font-bold text-xs text-white glowing-button flex items-center space-x-1.5 shadow-md active:scale-95 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Yangi Dars / Fayl Qo'shish</span>
+              </button>
+            </div>
+
+            {/* Lessons List */}
+            <div className="space-y-3">
+              {(!selectedCourseForMaterials.lessons || selectedCourseForMaterials.lessons.length === 0) ? (
+                <div className="text-center py-10 rounded-2xl border border-dashed border-slate-800 bg-slate-950/40 p-6 space-y-2">
+                  <FolderOpen className="w-10 h-10 text-slate-600 mx-auto" />
+                  <div className="text-sm font-bold text-slate-300">Ushbu kursda hali darsliklar yuklanmagan</div>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto">
+                    «Yangi Dars / Fayl Qo'shish» tugmasi orqali video, audio, golos yoki PDF/Word/Excel fayllarni yuklang.
+                  </p>
+                </div>
+              ) : (
+                selectedCourseForMaterials.lessons.map((lesson, idx) => {
+                  const isVideo = lesson.type === 'video';
+                  const isAudio = lesson.type === 'audio';
+                  const isDoc = lesson.type === 'document';
+                  return (
+                    <div
+                      key={lesson.id || idx}
+                      className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-teal-500/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="flex items-start space-x-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-bold ${
+                          isVideo ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' :
+                          isAudio ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                          isDoc ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                          'bg-teal-500/20 text-teal-400 border border-teal-500/30'
+                        }`}>
+                          {isVideo && <Video className="w-5 h-5" />}
+                          {isAudio && <Music className="w-5 h-5" />}
+                          {isDoc && <FileText className="w-5 h-5" />}
+                          {!isVideo && !isAudio && !isDoc && <BookOpen className="w-5 h-5" />}
+                        </div>
+
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center space-x-2 flex-wrap">
+                            <span className="font-bold text-white text-sm truncate">
+                              {lesson.title}
+                            </span>
+                            <span className={`text-[10px] font-bold px-2 py-0.2 rounded-full uppercase ${
+                              isVideo ? 'bg-indigo-950 text-indigo-300 border border-indigo-500/30' :
+                              isAudio ? 'bg-amber-950 text-amber-300 border border-amber-500/30' :
+                              isDoc ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30' :
+                              'bg-teal-950 text-teal-300 border border-teal-500/30'
+                            }`}>
+                              {isVideo ? '🎥 Video' : isAudio ? '🎙️ Audio' : isDoc ? '📄 Hujjat' : '📝 Matn'}
+                            </span>
+                            {lesson.duration && (
+                              <span className="text-[10px] text-slate-400 flex items-center space-x-1">
+                                <Clock className="w-2.5 h-2.5" />
+                                <span>{lesson.duration}</span>
+                              </span>
+                            )}
+                          </div>
+
+                          {lesson.description && (
+                            <p className="text-xs text-slate-400 line-clamp-1">
+                              {lesson.description}
+                            </p>
+                          )}
+
+                          {lesson.fileName && (
+                            <div className="text-[11px] text-teal-400 font-mono flex items-center space-x-1">
+                              <Paperclip className="w-3 h-3" />
+                              <span className="truncate">{lesson.fileName}</span>
+                              {lesson.fileSize && <span>({lesson.fileSize})</span>}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Lesson Action Buttons */}
+                      <div className="flex items-center space-x-2 self-end sm:self-center flex-shrink-0">
+                        {(lesson.mediaData || lesson.mediaUrl) && (
+                          <a
+                            href={lesson.mediaData || lesson.mediaUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-2 rounded-lg bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30 text-xs font-semibold flex items-center space-x-1"
+                            title="Ochish / Yuklab olish"
+                          >
+                            <Play className="w-3.5 h-3.5" />
+                            <span>Ko'rish</span>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditLesson(lesson)}
+                          className="p-2 rounded-lg bg-slate-800 hover:bg-teal-500/20 text-teal-300 border border-slate-700 hover:border-teal-400 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>Tahrirlash</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLesson(lesson.id)}
+                          className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-rose-300 border border-slate-700 hover:border-rose-400 text-xs font-semibold flex items-center space-x-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>O'chirish</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end border-t border-slate-800 pt-3">
+              <button
+                type="button"
+                onClick={() => setShowMaterialsModal(false)}
+                className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                Yopish
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 8.1. LESSON ADD / EDIT FORM MODAL */}
+      {/* ========================================================================= */}
+      {showLessonFormModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+          <div className="glass-panel p-5 sm:p-7 rounded-3xl max-w-xl w-full border border-teal-500/40 bg-slate-900/95 shadow-2xl space-y-4 animate-scale-up max-h-[90vh] overflow-y-auto">
+            
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2 text-teal-300 font-bold text-sm sm:text-base">
+                <Video className="w-5 h-5 text-teal-400" />
+                <span>{editingLesson ? "Darslikni Tahrirlash" : "Yangi Dars / Fayl Yuklash"}</span>
+              </div>
+              <button
+                onClick={() => setShowLessonFormModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveLesson} className="space-y-3.5 text-xs">
+              
+              {/* Lesson Title */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">
+                  1. Darslik Sarlavhasi (Title):
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={lessonFormData.title}
+                  onChange={e => setLessonFormData({ ...lessonFormData, title: e.target.value })}
+                  placeholder="Masalan: 1-Dars: Panik ataka va vahimani to'xtatish amaliyoti"
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-medium focus:border-teal-400 focus:outline-none"
+                />
+              </div>
+
+              {/* Media Type Selector */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1.5">
+                  2. Darslik / Media Turi:
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: 'video', label: '🎥 Video', sub: 'MP4 / Video' },
+                    { id: 'audio', label: '🎙️ Audio', sub: 'MP3 / Golos' },
+                    { id: 'document', label: '📄 Fayl / Hujjat', sub: 'PDF / Word / Excel' },
+                    { id: 'text', label: '📝 Matn', sub: 'Qo\'llanma' }
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setLessonFormData({ ...lessonFormData, type: t.id })}
+                      className={`p-2.5 rounded-xl text-center border transition-all cursor-pointer ${
+                        lessonFormData.type === t.id
+                          ? 'bg-teal-500/25 border-teal-400 text-teal-200 font-bold shadow-md shadow-teal-500/15'
+                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="font-bold">{t.label}</div>
+                      <div className="text-[9px] text-slate-500 mt-0.5">{t.sub}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Universal Media & File Uploader */}
+              <CourseMaterialUploadPicker
+                mediaType={lessonFormData.type}
+                mediaData={lessonFormData.mediaData}
+                mediaUrl={lessonFormData.mediaUrl}
+                fileName={lessonFormData.fileName}
+                fileSize={lessonFormData.fileSize}
+                onMediaSelected={({ data, name, size }) => {
+                  setLessonFormData(prev => ({
+                    ...prev,
+                    mediaData: data,
+                    fileName: name,
+                    fileSize: size
+                  }));
+                }}
+                onUrlChange={(url) => {
+                  setLessonFormData(prev => ({
+                    ...prev,
+                    mediaUrl: url
+                  }));
+                }}
+              />
+
+              {/* Duration / Size */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">
+                  3. Davomiyligi / Hajmi:
+                </label>
+                <input
+                  type="text"
+                  value={lessonFormData.duration}
+                  onChange={e => setLessonFormData({ ...lessonFormData, duration: e.target.value })}
+                  placeholder="Masalan: 18:30 daqiqa yoki 24 MB"
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white focus:border-teal-400 focus:outline-none"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">
+                  4. Dars Tavsifi va Shifokor Ko'rsatmalari:
+                </label>
+                <textarea
+                  rows={3}
+                  value={lessonFormData.description}
+                  onChange={e => setLessonFormData({ ...lessonFormData, description: e.target.value })}
+                  placeholder="Ushbu darslikda o'rganiladigan asosiy psixoterapevtik texnikalar..."
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white leading-relaxed focus:border-teal-400 focus:outline-none"
+                />
+              </div>
+
+              {/* Practical Action Task */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">
+                  5. Amaliy Topshiriq / Uy Vazifasi (Ixtiyoriy):
+                </label>
+                <input
+                  type="text"
+                  value={lessonFormData.actionTask}
+                  onChange={e => setLessonFormData({ ...lessonFormData, actionTask: e.target.value })}
+                  placeholder="Masalan: 4-7-8 nafas mashqini kechasi 5 marta takrorlang."
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white focus:border-teal-400 focus:outline-none"
+                />
+              </div>
+
+              {/* Modal Buttons */}
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowLessonFormModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl font-bold text-white glowing-button flex items-center space-x-1.5 shadow-lg shadow-teal-500/20 cursor-pointer"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Darslikni Saqlash</span>
+                </button>
+              </div>
+
+            </form>
+
           </div>
         </div>
       )}
